@@ -1,0 +1,69 @@
+\documentclass{article}
+\usepackage{hyperref}
+\usepackage[catalan]{babel}
+\usepackage{graphicx}
+\selectlanguage{catalan}
+
+\graphicspath{ {./img} }
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=blue
+}
+
+\title{Sistemes Operatius 2 (SO2)}
+\date{2018-2019 Q2}
+\author{David Soldevila}
+
+\begin{document}
+
+    \maketitle  
+
+    \pagebreak
+    
+    \tableofcontents
+    
+    \pagebreak
+
+    \section{Introducció}
+
+    Treballarem amb x86 amb regs de 32 bits.
+
+    Registres importants:
+    \begin{itemize}
+        \item EAX
+        \item EBX
+        \item ESI
+        \item EDI
+        \item ECX
+        \item EBP
+        \item EDX     
+        \item ESP
+    \end{itemize}
+
+    \pagebreak
+
+    \section{Mecanismes d'integritat del Sistema Operatiu}
+
+    \subsection{Nivells de privilegi}
+
+    Fa que els usuaris no tinguin accés al hardware. Les instruccions privilagiades només poden ser executades per l'OS. Es necessaria suport de hardware.
+
+    \subsection{Vector d'interrupcions}
+
+    IDT: Interrupt Descriptor Table: 256 entrades
+
+    - 0 - 31: Exceptions
+    - 32 - 47: Masked interrupts
+    - 48 - 255: Software interrupts (Traps)
+
+    El tractament de la excepcio s'hauria de fer en una sola rutina.
+
+    \subsection{Excepcions hardware}
+
+    S'ha de notificar al controlador de interrupcions quan s'ha acabat de tractar, per tal de poder tractar mes interrupcions.
+
+\end{document}

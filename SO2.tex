@@ -64,6 +64,28 @@
 
     \subsection{Excepcions hardware}
 
-    S'ha de notificar al controlador de interrupcions quan s'ha acabat de tractar, per tal de poder tractar mes interrupcions.
+        S'ha de notificar al controlador de interrupcions quan s'ha acabat de tractar, per tal de poder tractar mes interrupcions.
 
+    \subsection{Syscall Table}
+
+        Taula on hi ha totes les funcions (addrs) amb totes les syscalls. Si només es fa servir la IDT només es pot tenir 256 syscalls.
+
+    \subsection{sysenter}
+
+        Permet entrar/sortir de mode sistema sense fer tot el proces.
+        Per fer-ho s'ha de definir:
+        \begin{itemize}
+            \item SYSENTER_CS_MSR
+            \item SYSENTER_EIP_MSR
+            \item SYSENTER_ESP_MSR
+        \end{itemize}
+
+    \subsection{sysexit}
+        Despres de restaurar tot
+        \begin{itemize}
+            \item EDX <- EIP
+            \item ECX <- ESP
+        \end{itemize}
+        
+    
 \end{document}

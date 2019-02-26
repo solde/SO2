@@ -72,20 +72,53 @@
 
     \subsection{sysenter}
 
-        Permet entrar/sortir de mode sistema sense fer tot el proces.
+        Permet entrar de mode sistema sense fer tot el proces.
         Per fer-ho s'ha de definir:
-        \begin{itemize}
-            \item SYSENTER_CS_MSR
-            \item SYSENTER_EIP_MSR
-            \item SYSENTER_ESP_MSR
+        
+         \begin{itemize}
+            \item SYSENTER\_CS\_MSR
+            \item SYSENTER\_EIP\_MSR
+            \item SYSENTER\_ESP\_MSR
         \end{itemize}
 
     \subsection{sysexit}
-        Despres de restaurar tot
+        Permet sortir de mode sistema sense fer tot el proces.
+        Despres de restaurar tot.
         \begin{itemize}
-            \item EDX <- EIP
-            \item ECX <- ESP
+            \item EDX $\leftarrow$ EIP
+            \item ECX $\leftarrow$ ESP
         \end{itemize}
         
-    
+    \pagebreak
+
+    \section{Creació de fitxers executables}
+
+    \subsection{Compilar i montar}
+
+        Un fitxer executable conte una header (informació necessaria per executar el programa, tipus de fitxer, punters als inicis de les seccions, etc.), dades inicialitzades, memoria necessaria per a la pila i dades no inicialitzades.
+        
+        \subsubsection{Carregador}
+
+            Aquest programa llegiex un executable i carrega en memoria el codi i les daes i reserva espai en memoria per la pila i les dades no inicialitzades.
+
+        \subsubsection{Espais de direccions}
+
+            \begin{itemize}
+                \item Esai de direccions logiques del processador
+                \item Espai de direccions logiques del proces
+                \item Espai de direccions fisiques del proces
+            \end{itemize}
+            
+        \paragraph{Espi logic direccions logiques del proces}
+        és l'espai que genera un processador quan estaa executant un proces son logiques. Per traduir les direccions fisiques a logiques es fa servir la MMU (Memory Management Unit).
+
+        \subsubsection{MMU}
+
+        \subparagraph{La MMU de Intel Pentium}
+        per cada sement te una direccio base i una mida. I cada proces te UNA taula.
+        
+        A la pràctica hi ha dos segments, un per usuari i l'altre per sistema.
+
+        
+            
 \end{document}

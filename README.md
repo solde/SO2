@@ -3,7 +3,7 @@
 
 <audio controls="controls">
   <source type="audio/wav" src="baka.wav"></source>
-  <p>Your browser does not support the audio element.</p>
+  <p>Your browser does not support kawaii memes.</p>
 </audio>
 
 [Apunts](https://github.com/solde/SO2/blob/master/SO2.pdf)

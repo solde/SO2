@@ -2,7 +2,7 @@
 ![Baka](./baka.png)
 
 <audio controls="controls">
-  <source type="audio/wav" src="baka.wav"></source>
+  <source type="audio/mp3" src="baka.mp3"></source>
   <p>Your browser does not support kawaii memes.</p>
 </audio>
 

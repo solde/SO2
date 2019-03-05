@@ -45,3 +45,11 @@ int sys_fork()
 void sys_exit()
 {  
 }
+
+void reset_ticks(){
+  zeos_ticks = 0;
+}
+
+int sys_gettime() {
+	return zeos_ticks;
+}

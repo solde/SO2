@@ -13,6 +13,7 @@
 #include <utils.h>
 #include <zeos_mm.h> /* TO BE DELETED WHEN ADDED THE PROCESS MANAGEMENT CODE TO BECOME MULTIPROCESS */
 
+int zeos_ticks;
 
 int (*usr_main)(void) = (void *) PH_USER_START;
 unsigned int *p_sys_size = (unsigned int *) KERNEL_START;
@@ -74,6 +75,7 @@ int __attribute__((__section__(".text.main")))
 
   printk("Kernel Loaded!    ");
 
+  zeos_ticks = 0;
 
   /* Initialize hardware data */
   setGdt(); /* Definicio de la taula de segments de memoria */

@@ -51,5 +51,5 @@ char* error_msg(int i_errno) {
 
 void perror(){
   char *m = error_msg(errno);
-  write(1, m, strlen(m));
+  //write(1, m, strlen(m));
 }

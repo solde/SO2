@@ -119,6 +119,40 @@
         
         A la pràctica hi ha dos segments, un per usuari i l'altre per sistema.
 
-        
+    \pagebreak
+
+    \section{Gestió de porcessos}
+
+    Un process es una unitat d'activitat que es caracteriza per la execució de uan secuenda de instruccions, un estat actual i un conjunt de recursos del sistema associats.
+
+    \subsection{Característiques}
+
+    \paragraph{Espai lógic de @: } imatges en memoria del proces (codi, dades i pila). I la pila del kerner.
+
+    \paragraph{Context:} per part del hardware: valors dels registres i la tts. Per part del software: informació de planificació, dispositius...
+
+    En cas de linux, a més a més, necessita prioritat, quantum, canals, etc.
             
+    \subsection{Representació de un proces}
+
+    Cada proces te un Process Coontrol Block (PCB)
+
+    \begin{itemize}
+        \item Identificador del proces.
+        \item estat del proces.
+        \item recursos del proces.
+        \item Estadístiques del proces.
+        \item Inforamció de planificació.
+        \item Context d'execució.
+            \begin{itemize}
+                \item Dins el PCB.
+                \item A la pila del proces i al pCB només a memòria.
+            \end{itemize}
+        \item etc.
+    \end{itemize}
+
+    I una pila de memòria.
+
+    \paragraph{Per implementar-ho} 
+
 \end{document}

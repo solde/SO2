@@ -45,6 +45,7 @@ int sys_fork()
 void sys_exit()
 {  
 }
+<<<<<<< HEAD
 
 void reset_ticks(){
   zeos_ticks = 0;
@@ -53,3 +54,5 @@ void reset_ticks(){
 int sys_gettime() {
 	return zeos_ticks;
 }
+=======
+>>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908

@@ -75,6 +75,7 @@ ENTRY(keyboard_handler)
 	call keyboard_RSI
 	RESTORE_ALL
 	iret
+<<<<<<< HEAD
 
 ENTRY(clock_handler)
 	SAVE_ALL
@@ -82,3 +83,5 @@ ENTRY(clock_handler)
 	call clock_RSI
 	RESTORE_ALL
 	iret
+=======
+>>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908

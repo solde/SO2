@@ -51,5 +51,9 @@ char* error_msg(int i_errno) {
 
 void perror(){
   char *m = error_msg(errno);
+<<<<<<< HEAD
   //write(1, m, strlen(m));
+=======
+  write(1, m, strlen(m));
+>>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908
 }

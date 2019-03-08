@@ -43,16 +43,10 @@ int strlen(char *a)
   return i;
 }
 
-char* error_msg(int i_errno) {
-  char *msg;
-  itoa(i_errno, msg);
-  return msg;
-}
-
 void perror(){
-  char *m = "Error number: ";
+  char *m = "Error code: ";
   write(1, m, strlen(m));
-  *m = error_msg(errno);
+  itoa(errno, m);
   write(1, m, strlen(m));
 }
 

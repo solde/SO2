@@ -29,6 +29,7 @@ int __attribute__ ((__section__(".text.main")))
   acum = 0;
   acum = outer(count);
 	runjp();
+	//write(1, "test", 4);
   while(1){
 	
 	}

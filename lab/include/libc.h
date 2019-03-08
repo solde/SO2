@@ -24,4 +24,10 @@ void perror();
 
 char* error_msg(int i_errno);
 
+int write_wraper(int fd, char* buffer, int size);
+int gettime_wraper();
+
+extern int errno;
+
+int gettime();
 #endif  /* __LIBC_H__ */

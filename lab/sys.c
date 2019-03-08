@@ -13,6 +13,10 @@
 
 #include <sched.h>
 
+#include <zeos_error.h>
+
+#include <system.h>
+
 #define LECTURA 0
 #define ESCRIPTURA 1
 
@@ -42,17 +46,34 @@ int sys_fork()
   return PID;
 }
 
+#define BLOCK_SIZE 4
+
+int sys_write(int fd, char* buffer, int size){
+  char correct_fd = check_fd(fd, ESCRIPTURA);
+  if(correct_fd) return -correct_fd;
+  if(buffer == NULL) return EFAULT;
+  if(size < 0) return EINVAL;
+  
+  char buff[BLOCK_SIZE];
+  int offset = 0;
+  	while (offset + BLOCK_SIZE <= size) {
+		copy_from_user(buffer+offset, buff, BLOCK_SIZE);
+		sys_write_console(buff, BLOCK_SIZE);
+		offset += BLOCK_SIZE;
+	}
+	if (offset < size) {
+		int res = size - offset;
+		copy_from_user(buffer+offset, buff, res);
+		sys_write_console(buff, res);
+	}
+	return 0;
+}
+
+
 void sys_exit()
 {  
 }
-<<<<<<< HEAD
-
-void reset_ticks(){
-  zeos_ticks = 0;
-}
 
 int sys_gettime() {
-	return zeos_ticks;
+	return get_ticks();
 }
-=======
->>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908

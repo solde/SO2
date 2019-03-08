@@ -13,10 +13,7 @@
 #include <utils.h>
 #include <zeos_mm.h> /* TO BE DELETED WHEN ADDED THE PROCESS MANAGEMENT CODE TO BECOME MULTIPROCESS */
 
-<<<<<<< HEAD
 int zeos_ticks;
-=======
->>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908
 
 int (*usr_main)(void) = (void *) PH_USER_START;
 unsigned int *p_sys_size = (unsigned int *) KERNEL_START;
@@ -58,6 +55,10 @@ inline void set_seg_regs(Word data_sel, Word stack_sel, DWord esp)
 
 }
 
+void increment_ticks(){
+  ++zeos_ticks;
+}
+
 /*
  *   Main entry point to ZEOS Operating System
  */
@@ -78,10 +79,8 @@ int __attribute__((__section__(".text.main")))
 
   printk("Kernel Loaded!    ");
 
-<<<<<<< HEAD
   zeos_ticks = 0;
-=======
->>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908
+
 
   /* Initialize hardware data */
   setGdt(); /* Definicio de la taula de segments de memoria */

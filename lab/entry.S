@@ -4,6 +4,7 @@
 
 #include <asm.h>
 #include <segment.h>
+#include <zeos_error.h>
 
 
 /**************************************************/
@@ -75,7 +76,6 @@ ENTRY(keyboard_handler)
 	call keyboard_RSI
 	RESTORE_ALL
 	iret
-<<<<<<< HEAD
 
 ENTRY(clock_handler)
 	SAVE_ALL
@@ -83,5 +83,53 @@ ENTRY(clock_handler)
 	call clock_RSI
 	RESTORE_ALL
 	iret
-=======
->>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908
+
+ENTRY(system_call_handler)
+	SAVE_ALL
+	cmpl $0, %eax
+	jl err
+	cmpl $MAX_SYSCALL, %eax
+	jg err
+	call *sys_call_table(, %eax, 0x04) //call syscall from sys_call_table
+	jmp fin
+err:
+	movl $-38, %eax
+fin:
+	movl %EAX, 0x18(%esp)
+	RESTORE_ALL
+	iret
+
+ENTRY(writeMSR)
+	push %ebp
+	movl %esp,%ebp
+	movl 12(%ebp), %eax
+	movl 8(%ebp), %ecx
+	wrmsr
+	pop %ebp
+	ret
+
+ENTRY(syscall_handler_sysenter)
+	push $__USER_DS
+	push %EBP
+	// User stack addr
+	pushfl
+	push $__USER_CS
+	push 4(%EBP)
+	// User return addr
+	SAVE_ALL
+	cmpl $0, %EAX //test the error
+	jl sysenter_err
+	cmpl $MAX_SYSCALL, %EAX
+	jg sysenter_err
+	call *sys_call_table(, %EAX, 0x04) //call syscall form sys_call_table
+	jmp sysenter_fin
+sysenter_err:
+	movl $-ENOSYS, %EAX
+sysenter_fin:
+	movl %EAX, 0x18(%ESP)
+	RESTORE_ALL
+	movl (%ESP), %EDX
+	// Return address
+	movl 12(%ESP), %ECX // User stack address
+	sti // Enable interrupts again
+	sysexit

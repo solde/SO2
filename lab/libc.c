@@ -44,16 +44,22 @@ int strlen(char *a)
 }
 
 char* error_msg(int i_errno) {
-  char *m = "Error number";
-  return m;
+  char *msg;
+  itoa(i_errno, msg);
+  return msg;
 }
 
-
 void perror(){
-  char *m = error_msg(errno);
-<<<<<<< HEAD
-  //write(1, m, strlen(m));
-=======
+  char *m = "Error number: ";
   write(1, m, strlen(m));
->>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908
+  *m = error_msg(errno);
+  write(1, m, strlen(m));
+}
+
+int write(int fd, char *buffer, int size) { 
+  return write_wraper(fd, buffer, size); 
+}
+
+int gettime() { 
+  return gettime_wraper(); 
 }

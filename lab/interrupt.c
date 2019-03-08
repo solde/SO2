@@ -7,6 +7,7 @@
 #include <hardware.h>
 #include <io.h>
 #include <entry.h>
+#include <system.h>
 
 #include <zeos_interrupt.h>
 
@@ -16,19 +17,11 @@ Register    idtR;
 char char_map[] =
 {
   '\0','\0','1','2','3','4','5','6',
-<<<<<<< HEAD
   '7','8','9','0','\'','ï¿½','\0','\0',
   'q','w','e','r','t','y','u','i',
   'o','p','`','+','\0','\0','a','s',
   'd','f','g','h','j','k','l','ï¿½',
   '\0','ï¿½','\0','ï¿½','z','x','c','v',
-=======
-  '7','8','9','0','\'','¡','\0','\0',
-  'q','w','e','r','t','y','u','i',
-  'o','p','`','+','\0','\0','a','s',
-  'd','f','g','h','j','k','l','ñ',
-  '\0','º','\0','ç','z','x','c','v',
->>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908
   'b','n','m',',','.','-','\0','*',
   '\0','\0','\0','\0','\0','\0','\0','\0',
   '\0','\0','\0','\0','\0','\0','\0','7',
@@ -89,11 +82,13 @@ void setIdt()
   idtR.base  = (DWord)idt;
   idtR.limit = IDT_ENTRIES * sizeof(Gate) - 1;
   
-  setInterruptHandler(33, keyboard_handler, 0);
-<<<<<<< HEAD
   setInterruptHandler(32, clock_handler, 0);
-=======
->>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908
+  setInterruptHandler(33, keyboard_handler, 0);
+  setInterruptHandler(0x80, system_call_handler, 3);
+
+  writeMSR(0x174, __KERNEL_CS);
+	writeMSR(0x175, INITIAL_ESP);
+	writeMSR(0x176, syscall_handler_sysenter);
   
   set_handlers();
 
@@ -109,19 +104,12 @@ void keyboard_RSI(){
 	key_id = read & 0b01111111;
 	if(is_pressed != 0){
 		char to_print = char_map[key_id];
-<<<<<<< HEAD
-		if( ( (to_print >= 'a') & (to_print <= 'z') ) | ( (to_print >= '0') & (to_print <= '9') ) ) printc_xy(0,0,to_print);
+		if( to_print >= 32 ) printc_xy(0,0,to_print);
 		else printc_xy(0,0,'C');
 	}
 }
 
 void clock_RSI(){
-  ++zeos_ticks;
+  increment_ticks();
 	zeos_show_clock();
 }
-=======
-		if(to_print >= 'a' & to_print <= 'z' | to_print >= '0' & to_print <= '9') printc_xy(0,0,to_print);
-		else printc_xy(0,0,'C');
-	}
-}
->>>>>>> 3921257600195683f6d5e88fc4acacf1c21bb908

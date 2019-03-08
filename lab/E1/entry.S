@@ -72,14 +72,14 @@
 
 ENTRY(keyboard_handler)
 	SAVE_ALL
-	EOI
+	EOI //End Of Interrupt
 	call keyboard_RSI
 	RESTORE_ALL
 	iret
 
 ENTRY(clock_handler)
 	SAVE_ALL
-	EOI
+	EOI //End Of Interrupt
 	call clock_RSI
 	RESTORE_ALL
 	iret
@@ -117,11 +117,11 @@ ENTRY(syscall_handler_sysenter)
 	push 4(%EBP)
 	// User return addr
 	SAVE_ALL
-	cmpl $0, %EAX //test the error
+	cmpl $0, %EAX // Test the error
 	jl sysenter_err
 	cmpl $MAX_SYSCALL, %EAX
 	jg sysenter_err
-	call *sys_call_table(, %EAX, 0x04) //call syscall form sys_call_table
+	call *sys_call_table(, %EAX, 0x04) // Call syscall form sys_call_table
 	jmp sysenter_fin
 sysenter_err:
 	movl $-ENOSYS, %EAX
@@ -130,6 +130,6 @@ sysenter_fin:
 	RESTORE_ALL
 	movl (%ESP), %EDX
 	// Return address
-	movl 12(%ESP), %ECX // User stack address
-	sti // Enable interrupts again
+	movl 12(%ESP), %ECX // User stack addr
+	sti // Enable interrupts
 	sysexit

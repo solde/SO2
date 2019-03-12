@@ -19,6 +19,8 @@ long outer(long n){
 	return acum;
 	}
 
+int write(int fd, char* buffer, int size);
+
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
@@ -26,6 +28,10 @@ int __attribute__ ((__section__(".text.main")))
   count = 75;
   acum = 0;
   acum = outer(count);
-  while(1){}
+	runjp();
+	//write(1, "test", 4);
+  while(1){
+	
+	}
   return 0;
 }

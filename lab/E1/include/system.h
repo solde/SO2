@@ -7,6 +7,7 @@
 
 #include <types.h>
 
+void increment_ticks();
 
 extern TSS         tss;
 extern Descriptor* gdt;

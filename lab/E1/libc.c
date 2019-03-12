@@ -43,13 +43,17 @@ int strlen(char *a)
   return i;
 }
 
-char* error_msg(int i_errno) {
-  char *m = "Error number";
-  return m;
+void perror(){
+  char *m = "Error code: ";
+  write(1, m, strlen(m));
+  itoa(errno, m);
+  write(1, m, strlen(m));
 }
 
+int write(int fd, char *buffer, int size) { 
+  return write_wraper(fd, buffer, size); 
+}
 
-void perror(){
-  char *m = error_msg(errno);
-  write(1, m, strlen(m));
+int gettime() { 
+  return gettime_wraper(); 
 }

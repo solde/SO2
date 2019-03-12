@@ -15,8 +15,18 @@ extern Register idtR;
 void setInterruptHandler(int vector, void (*handler)(), int maxAccessibleFromPL);
 void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL);
 
+void writeMSR(int addr, int val);
+
 void setIdt();
 
-void RSI();
+void keyboard_RSI();
+void clock_RSI();
+
+void clock_handler();
+void keyboard_handler();
+void system_call_handler();
+
+void syscall_handler_sysenter();
+void writeMSR(int addr, int val);
 
 #endif  /* __INTERRUPT_H__ */

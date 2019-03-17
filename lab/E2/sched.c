@@ -72,10 +72,10 @@ void init_idle (void)
 	list_del(e); // Delete form freequeue
 	union task_union task_union_t1 = ( union task_union *) t1; // Get the task_union of the task
 
-	task_union_t1->[KERNEL_STACK_SIZE] = &cpu_idle; // Set the return addr
-	task_union_t1->[KERNEL_STACK_SIZE -1] = 666; // Set de esp (it is not be used)
+	task_union_t1->stack[KERNEL_STACK_SIZE] = &cpu_idle; // Set the return addr
+	task_union_t1->stack[KERNEL_STACK_SIZE -1] = 666; // Set de esp (it is not be used)
 
-	t1->top_stack = task_union_t1->[KERNEL_STACK_SIZE -1];
+	t1->top_stack = &task_union_t1->stack[KERNEL_STACK_SIZE -1];
 }
 
 void init_task1(void)

@@ -15,7 +15,29 @@
 # 7 "entry.S" 2
 # 1 "include/zeos_error.h" 1
 # 8 "entry.S" 2
-# 73 "entry.S"
+# 72 "entry.S"
+.globl task_switch; .type task_switch, @function; .align 0; task_switch:
+ push %ebp;
+ movl %esp,%ebp;
+ push %esi;
+ push %edi;
+ push %ebx;
+ push 8(%ebp);
+ call inner_task_switch;
+ pop 8(%ebp)
+ pop %ebx;
+ pop %edi;
+ pop %esi;
+ pop %ebp;
+
+.globl getEBP; .type getEBP, @function; .align 0; getEBP:
+ movl %ebp, %eax;
+ ret;
+
+.globl setESP; .type setESP, @function; .align 0; setESP:
+ movl 8(%ebp), %esp;
+ ret;
+
 .globl keyboard_handler; .type keyboard_handler, @function; .align 0; keyboard_handler:
  pushl %gs; pushl %fs; pushl %es; pushl %ds; pushl %eax; pushl %ebp; pushl %edi; pushl %esi; pushl %edx; pushl %ecx; pushl %ebx; movl $0x18, %edx; movl %edx, %ds; movl %edx, %es
  movb $0x20, %al; outb %al, $0x20 ;

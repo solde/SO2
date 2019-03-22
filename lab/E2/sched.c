@@ -20,6 +20,10 @@ struct element {
 
 };
 
+struct task_struct * idle_task;
+
+struct task_struct * ini_task;
+
 struct list_head freequeue;
 
 struct list_head readyqueue;
@@ -40,7 +44,6 @@ page_table_entry * get_PT (struct task_struct *t)
 {
 	return (page_table_entry *)(((unsigned int)(t->dir_pages_baseAddr->bits.pbase_addr))<<12);
 }
-
 
 int allocate_DIR(struct task_struct *t) 
 {
@@ -63,27 +66,28 @@ void cpu_idle(void)
 	}
 }
 
+
 void init_idle (void)
 {
 	struct list_head * e = list_first( &freequeue );
-	struct task_struct * t1 = list_entry(e, struct task_struct, list); // Get the task_struct
-	t1->PID = 1; // Assign a PID
-	int r = allocate_DIR(t1); // Assign memory pages
+	idle_task = list_entry(e, struct task_struct, list); // Get the task_struct
+	idle_task->PID = 1; // Assign a PID
+	allocate_DIR(idle_task); // Assign memory pages
 	list_del(e); // Delete form freequeue
-	union task_union task_union_t1 = ( union task_union *) t1; // Get the task_union of the task
+	union task_union *task_union_idle_task = ( union task_union *) idle_task; // Get the task_union of the task
 
-	task_union_t1->stack[KERNEL_STACK_SIZE] = &cpu_idle; // Set the return addr
-	task_union_t1->stack[KERNEL_STACK_SIZE -1] = 666; // Set de esp (it is not be used)
+	task_union_idle_task->stack[KERNEL_STACK_SIZE] = (unsigned long)&cpu_idle; // Set the return addr
+	task_union_idle_task->stack[KERNEL_STACK_SIZE -1] = 666; // Set de esp (it is not be used)
 
-	t1->top_stack = &task_union_t1->stack[KERNEL_STACK_SIZE -1];
+	idle_task->top_stack = (int*)&task_union_idle_task->stack[KERNEL_STACK_SIZE -1];
 }
 
 void init_task1(void)
 {
 	struct list_head * e = list_first( &freequeue );
-	struct task_struct * t0 = list_entry(e, struct task_struct, list);
-	t0->PID = 0;
-	int r = allocate_DIR(t0);
+	struct task_struct * ini_task = list_entry(e, struct task_struct, list);
+	ini_task->PID = 0;
+	int r = allocate_DIR(ini_task);
 	list_del(e);
 }
 
@@ -109,3 +113,11 @@ struct task_struct* current()
   return (struct task_struct*)(ret_value&0xfffff000);
 }
 
+void inner_task_switch(union task_union*t){
+	struct task_struct *act = current();
+	tss.esp0 = &t->stack[KERNEL_STACK_SIZE];
+	writeMSR(0x175, (int)&t->stack[KERNEL_STACK_SIZE]);
+	set_cr3(t->task.dir_pages_baseAddr);
+	act->task.top_stack = getESP();
+	setESP(&t->task.stack[KERNEL_STACK_SIZE]);
+}

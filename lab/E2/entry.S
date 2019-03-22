@@ -68,7 +68,28 @@
 #define EOI      \
 	movb $0x20, %al; \
 	outb %al, $0x20 ;
-	
+
+ENTRY(task_switch)
+	push %ebp;
+	movl %esp,%ebp;
+	push %esi;
+	push %edi;
+	push %ebx;
+	push 8(%ebp);	
+	call inner_task_switch;
+	pop 8(%ebp)
+	pop %ebx;
+	pop %edi;
+	pop %esi;
+	pop %ebp;
+
+ENTRY(getEBP)
+	movl %ebp, %eax;
+	ret;
+
+ENTRY(setESP)
+	movl 8(%ebp), %esp;
+	ret;
 
 ENTRY(keyboard_handler)
 	SAVE_ALL

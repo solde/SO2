@@ -8,6 +8,7 @@
 #include <io.h>
 #include <entry.h>
 #include <system.h>
+#include <sched.h>
 
 #include <zeos_interrupt.h>
 
@@ -102,11 +103,23 @@ void keyboard_RSI(){
 	read = inb(0x60);
 	is_pressed = read & 0b10000000;
 	key_id = read & 0b01111111;
+  char to_print;
 	if(is_pressed != 0){
-		char to_print = char_map[key_id];
+		to_print = char_map[key_id];
 		if( to_print >= 32 ) printc_xy(0,0,to_print);
 		else printc_xy(0,0,'C');
+
+    if(to_print == 'a'){
+      task_switch(idle_task);
+      printc_xy(0,0,'Q');
+    }
+
+    if(to_print == 'b'){
+      task_switch(ini_task);
+      printc_xy(0,0,'Q');
+    }
 	}
+
 }
 
 void clock_RSI(){

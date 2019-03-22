@@ -59,6 +59,10 @@ void increment_ticks(){
   ++zeos_ticks;
 }
 
+int get_ticks(){
+  return zeos_ticks;
+}
+
 /*
  *   Main entry point to ZEOS Operating System
  */

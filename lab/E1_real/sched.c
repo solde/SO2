@@ -21,19 +21,6 @@ struct element {
 
 };
 
-struct task_struct * idle_task;
-
-struct task_struct * ini_task;
-
-struct list_head freequeue;
-
-struct list_head readyqueue;
-
-extern struct list_head blocked;
-
-struct task_struct * idle_task;
-
-
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
 {
@@ -147,13 +134,45 @@ int get_quantum(struct task_struct *t){
 }
 
 void update_sched_data_rr(){
-	current->execution_time++;
+	current()->round_time++;
 }
 
 int needs_sched_rr(){
-	return (current->execution_time >= current->quantum);
+	return (current()->round_time >= current()->quantum);
 }
 
 void update_process_state_rr(struct task_struct *t, struct list_head *dest){
+	if(t->state != ST_RUN){
+		list_del(&t->list);
+	}
+	if(dest != NULL){
+		list_add_tail(&t->list, dest);
+	}
+	if(dest == &readyqueue){
+		t->state = ST_READY;
+	}
+	else if(dest == &freequeue){
+		t->state = 1;
+	}
+	else if(dest == NULL){
+		t->state = ST_RUN;
+	}
+}
 
+void sched_next_rr(){
+	if(!list_empty(&readyqueue)){
+		struct list_head *e = list_first(&readyqueue);
+		struct task_struct *task_to_execute = list_entry(e, struct task_struct, list);
+
+		update_process_state_rr(task_to_execute, NULL); // Set to tun 
+		task_to_execute->round_time = 0;
+	}
+	else{
+		task_switch((union task_union *) idle_task);
+	}
+	return;
+}
+
+void init_stats(struct task_struct *t){
+	t->state = ST_READY;
 }

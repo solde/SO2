@@ -120,8 +120,8 @@ void keyboard_RSI(){
       task_switch(ini_task);
       printc_xy(0,0,'Q');
     }
+    */
 	}
-  */
 }
 
 void clock_RSI(){

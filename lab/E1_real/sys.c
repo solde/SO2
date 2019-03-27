@@ -22,6 +22,8 @@
 
 int NEXT_PID = 2;
 
+#define FIRST_FREE_PAGES (PAG_LOG_INIT_DATA + NUM_PAG_DATA)
+
 int check_fd(int fd, int permissions)
 {
   if (fd!=1) return -9; /*EBADF*/
@@ -45,28 +47,26 @@ int ret_from_frok(){
 
 int sys_fork()
 {
-  int PID=-1;
-
   // creates the child process
   if(list_empty(&freequeue)) return -EAGAIN; // No free process
   struct list_head *el = list_first(&freequeue);
-  list_del(e);
+  list_del(el);
 
-  struct task_struct *new_task_struct = list_entry(e, struct task_struct, list);
+  struct task_struct *new_task_struct = list_entry(el, struct task_struct, list);
   union task_union *new_task_union = (union task_union *) new_task_struct;
 
   struct task_struct *current_task_struct = current();
   union task_union *current_task_union = (union task_union *) current_task_struct;
 
   copy_data(current_task_union, KERNEL_STACK_SIZE, new_task_union); // Copy data from current task to the new task
-  int e = allocate_DIR(new_task_struct) // Allocate memory for the new task
+  int e = allocate_DIR(new_task_struct); // Allocate memory for the new task
 
   if(e < 0) return e;
 
   page_table_entry *new_pt = get_PT(new_task_struct);
   page_table_entry *current_pt = get_PT(current_task_struct);
 
-  int dataFrames[NUM_PAG_DATA]
+  int dataFrames[NUM_PAG_DATA];
   for(int i = 0; i < NUM_PAG_DATA; i++){
     dataFrames[i] = alloc_frame();
     if(dataFrames[i] < 0){
@@ -78,18 +78,18 @@ int sys_fork()
     set_ss_pag(new_pt, PAG_LOG_INIT_DATA +i, dataFrames[i]);
     set_ss_pag(current_pt, PAG_LOG_INIT_DATA +i, dataFrames[i]);
     copy_data((void*) ((PAG_LOG_INIT_DATA+i)*PAGE_SIZE), (void*)((FIRST_FREE_PAGES+i)*PAGE_SIZE), PAGE_SIZE);
-    dell_ss_pag(current_pt, FIRST_FREE_PAGES =i);
-    set_cr3(current_task_struct->dir_pages-baseAddr);
+    del_ss_pag(current_pt, FIRST_FREE_PAGES +i);
+    set_cr3(current_task_struct->dir_pages_baseAddr);
   }
 
   new_task_struct->PID = NEXT_PID;
   ++NEXT_PID;
 
-  int offsetEBP = getEBP() & 0xfff;
+  int offsetEBP = getEP() & 0xfff;
   int newEBP = offsetEBP = (int)new_task_struct;
 
   new_task_union->task.kernel_esp = newEBP - sizeof(long);
-  new_task_union->stak[offsetEBP/sizeof(long)] = (long)&ret_from_frok;
+  new_task_union->stack[offsetEBP/sizeof(long)] = (long)&ret_from_frok;
 
   list_add_tail(&new_task_struct->list, &readyqueue);
 
@@ -120,8 +120,8 @@ int sys_write(int fd, char* buffer, int size){
 }
 
 
-void sys_exit()
-{  
+void sys_exit(){ 
+  
 }
 
 int sys_gettime() {

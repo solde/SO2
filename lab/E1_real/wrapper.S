@@ -69,13 +69,13 @@ ENTRY(getpid)
 	movl %esp, %ebp
 	mov $20, %eax
 	sysenter
-
+	//Return point
 r:	pop %ebp
 	add $4, %ebp
+	//Restore
 	pop %ebx
 	pop %edx
 	pop %ecx
-
 	mov %ebp, %esp
 	pop %ebp
 	ret
@@ -96,7 +96,31 @@ ENTRY(fork)
 	//Retrun point
 r:  pop %ebp
 	add $4, %esp
+	//Restore
+	pop %ebx
+	pop %edx
+	pop %ecx
+   	mov %ebp, %esp
+	pop %ebp
+	ret
 
+ENTRY(exit)
+	push %ebp
+	mov %esp, %ebp
+	push %ecx
+	push %edx
+	push %ebx
+	//El link pocho
+	lea ret5, %eax // sysenter return correctly
+	push %eax
+	push %ebp // fake dynamic link
+	movl %esp, %ebp
+	mov $1, %eax
+	sysenter
+	//Return point
+r:	pop %ebp
+	add $4, %esp
+	//Restore 
 	pop %ebx
 	pop %edx
 	pop %ecx

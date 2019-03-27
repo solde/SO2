@@ -1,4 +1,4 @@
- /*
+/*
  * sys.c - Syscalls implementation
  */
 #include <devices.h>
@@ -121,7 +121,9 @@ int sys_write(int fd, char* buffer, int size){
 
 
 void sys_exit(){ 
-  
+  free_user_pages(current()); // Free memory
+  update_process_state_rr(current(), &freequeue); //Free the structure
+  sched_next_rr(); //Execute de cheducler
 }
 
 int sys_gettime() {

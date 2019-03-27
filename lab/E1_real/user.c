@@ -29,7 +29,7 @@ int __attribute__ ((__section__(".text.main")))
   acum = 0;
   acum = outer(count);
 	//runjp();
-	perror();
+	//perror();
   while(1){
 	}
   return 0;

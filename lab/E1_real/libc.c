@@ -8,7 +8,7 @@
 
 int errno;
 
-char error_text[][] = {
+char* error_text[] = {
     "Operation not permitted", 
     "No such file or directory", 
     "No such process", 
@@ -173,8 +173,9 @@ int strlen(char *a)
 void perror(){
   char *m = "Error code: ";
   write(1, m, strlen(m));
-  itoa(errno, m);
-  write(1, m, strlen(m));
+  char b[100];
+  itoa(errno, b);
+  write(1, b, strlen(b));
   m = ": ";
   write(1, m, strlen(m));
   m = error_text[errno];

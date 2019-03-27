@@ -19,16 +19,22 @@
 .globl task_switch; .type task_switch, @function; .align 0; task_switch:
  push %ebp;
  movl %esp,%ebp;
+
  push %esi;
  push %edi;
  push %ebx;
+
  push 8(%ebp);
  call inner_task_switch;
- pop 8(%ebp)
+
+
  pop %ebx;
  pop %edi;
  pop %esi;
+
+ mov %ebp, %esp
  pop %ebp;
+ ret
 
 .globl getEBP; .type getEBP, @function; .align 0; getEBP:
  movl %ebp, %eax;
@@ -101,3 +107,16 @@ sysenter_fin:
  movl 12(%ESP), %ECX;
  sti;
  sysexit
+
+.globl inner_inner_task_switch; .type inner_inner_task_switch, @function; .align 0; inner_inner_task_switch:
+ push %ebp
+ mov %esp, %ebp
+
+ mov 12(%ebp), %eax
+ mov %esp, (%eax)
+
+ mov 8(%ebp), %eax
+ mov (%eax), %esp
+
+ pop %ebp
+ ret

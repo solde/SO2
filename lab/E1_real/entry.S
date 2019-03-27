@@ -72,16 +72,22 @@
 ENTRY(task_switch)
 	push %ebp;
 	movl %esp,%ebp;
+	// 1 - Save registers
 	push %esi;
 	push %edi;
 	push %ebx;
+	// 2 - Call inner_task_switch
 	push 8(%ebp);	
 	call inner_task_switch;
-	pop 8(%ebp)
+	//add $4, %esp
+	//3 - Restore
 	pop %ebx;
 	pop %edi;
 	pop %esi;
+
+	mov %ebp, %esp
 	pop %ebp;
+	ret
 
 ENTRY(getEBP)
 	movl %ebp, %eax;
@@ -154,3 +160,16 @@ sysenter_fin:
 	movl 12(%ESP), %ECX;// User stack addr
 	sti; // Enable interrupts
 	sysexit
+
+ENTRY(inner_inner_task_switch)
+	push %ebp 
+	mov %esp, %ebp
+	
+	mov 12(%ebp), %eax
+	mov %esp, (%eax)
+	
+	mov 8(%ebp), %eax
+	mov (%eax), %esp
+
+	pop %ebp
+	ret

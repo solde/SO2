@@ -108,7 +108,9 @@ void keyboard_RSI(){
 		to_print = char_map[key_id];
 		if( to_print >= 32 ) printc_xy(0,0,to_print);
 		else printc_xy(0,0,'C');
-
+    
+    //task_switch test
+    /*
     if(to_print == 'a'){
       task_switch(idle_task);
       printc_xy(0,0,'Q');
@@ -119,7 +121,7 @@ void keyboard_RSI(){
       printc_xy(0,0,'Q');
     }
 	}
-
+  */
 }
 
 void clock_RSI(){

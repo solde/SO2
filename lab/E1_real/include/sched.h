@@ -8,6 +8,7 @@
 #include <list.h>
 #include <types.h>
 #include <mm_address.h>
+#include <libc.h>
 
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
@@ -18,7 +19,11 @@ struct task_struct {
   int PID;			/* Process ID. This MUST be the first field of the struct. */
   page_table_entry * dir_pages_baseAddr;
   int* top_stack;
+  int kernel_esp;
   struct list_head list;
+  int quantum;
+  int executed_time; // Time in execution in ticks.
+  enum state_t state;
 };
 
 union task_union {
@@ -41,13 +46,13 @@ void init_sched(void);
 
 struct task_struct * current();
 
-void task_switch(union task_union*t);
+extern void task_switch(union task_union*t);
 
 void inner_task_switch(union task_union*t);
 
-int getESP();
+extern int getESP();
 
-void setESP(int new_value);
+extern void setEBP(int new_value);
 
 union task_union * getReady();
 
@@ -64,5 +69,7 @@ void sched_next_rr();
 void update_process_state_rr(struct task_struct *t, struct list_head *dest);
 int needs_sched_rr();
 void update_sched_data_rr();
+void set_quantum(struct task_struct *t);
+int get_quantum(struct task_struct *t);
 
 #endif  /* __SCHED_H__ */

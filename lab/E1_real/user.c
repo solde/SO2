@@ -28,10 +28,10 @@ int __attribute__ ((__section__(".text.main")))
   count = 75;
   acum = 0;
   acum = outer(count);
-	//runjp();
+	runjp();
 	//perror();
   while(1){
-		write(1, "user", 4);
+		//write(1, "user", 4);
 	}
   return 0;
 }

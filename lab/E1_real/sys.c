@@ -130,7 +130,24 @@ int sys_gettime() {
 	return get_ticks();
 }
 
+struct task_struct *get_ts(int pid){
+  for(int i = 0; i < NR_TASKS; i++){
+    if((&task[i])->task.PID == pid) return (struct task_struct *)&task[i];
+  }
+  return NULL;
+};
+
+
 int sys_get_stats(int pid, struct stats* st) {
-	return 0; // if we return 0 here everything breaks, in the teacher's lib
-		
+  // Get task struct
+	struct task_struct *t = get_ts(pid);
+  if(t==NULL) return -1;
+  // Test the acces to st
+  if(!access_ok(VERIFY_WRITE, st, sizeof(struct stats))) return -EACCES;
+  // Set user ticks
+  t->s.user_ticks = 500;
+  // Send data to user
+  copy_to_user(&t->s, st, sizeof(struct stats));
+
+  return 0;	
 }

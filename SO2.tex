@@ -20,12 +20,12 @@
 
 \begin{document}
 
-    \maketitle  
+    \maketitle
 
     \pagebreak
-    
+
     \tableofcontents
-    
+
     \pagebreak
 
     \section{Introducció}
@@ -40,7 +40,7 @@
         \item EDI
         \item ECX
         \item EBP
-        \item EDX     
+        \item EDX
         \item ESP
     \end{itemize}
 
@@ -74,7 +74,7 @@
 
         Permet entrar de mode sistema sense fer tot el proces.
         Per fer-ho s'ha de definir:
-        
+
          \begin{itemize}
             \item SYSENTER\_CS\_MSR
             \item SYSENTER\_EIP\_MSR
@@ -88,7 +88,7 @@
             \item EDX $\leftarrow$ EIP
             \item ECX $\leftarrow$ ESP
         \end{itemize}
-        
+
     \pagebreak
 
     \section{Creació de fitxers executables}
@@ -96,7 +96,7 @@
     \subsection{Compilar i montar}
 
         Un fitxer executable conte una header (informació necessaria per executar el programa, tipus de fitxer, punters als inicis de les seccions, etc.), dades inicialitzades, memoria necessaria per a la pila i dades no inicialitzades.
-        
+
         \subsubsection{Carregador}
 
             Aquest programa llegiex un executable i carrega en memoria el codi i les daes i reserva espai en memoria per la pila i les dades no inicialitzades.
@@ -108,7 +108,7 @@
                 \item Espai de direccions logiques del proces
                 \item Espai de direccions fisiques del proces
             \end{itemize}
-            
+
         \paragraph{Espi logic direccions logiques del proces}
         és l'espai que genera un processador quan estaa executant un proces son logiques. Per traduir les direccions fisiques a logiques es fa servir la MMU (Memory Management Unit).
 
@@ -116,7 +116,7 @@
 
         \subparagraph{La MMU de Intel Pentium}
         per cada sement te una direccio base i una mida. I cada proces te UNA taula.
-        
+
         A la pràctica hi ha dos segments, un per usuari i l'altre per sistema.
 
     \pagebreak
@@ -132,7 +132,7 @@
     \paragraph{Context:} per part del hardware: valors dels registres i la tts. Per part del software: informació de planificació, dispositius...
 
     En cas de linux, a més a més, necessita prioritat, quantum, canals, etc.
-            
+
     \subsection{Representació de un proces}
 
     Cada proces te un Process Coontrol Block (PCB)
@@ -153,6 +153,8 @@
 
     I una pila de memòria.
 
-    \paragraph{Per implementar-ho} 
+    \subsection{Estructures de sistema}
+
+    	Una queue per cada estat. Poden estar duplicades si hi ha més d'un dispositiu que pot dur a terma aquella fase. 
 
 \end{document}

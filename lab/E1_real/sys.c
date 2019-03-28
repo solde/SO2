@@ -85,7 +85,7 @@ int sys_fork()
   new_task_struct->PID = NEXT_PID;
   ++NEXT_PID;
 
-  int offsetEBP = getEP() & 0xfff;
+  int offsetEBP = getEBP() & 0xfff;
   int newEBP = offsetEBP = (int)new_task_struct;
 
   new_task_union->task.kernel_esp = newEBP - sizeof(long);
@@ -128,4 +128,9 @@ void sys_exit(){
 
 int sys_gettime() {
 	return get_ticks();
+}
+
+int sys_get_stats(int pid, struct stats* st) {
+	return 0; // if we return 0 here everything breaks, in the teacher's lib
+		
 }

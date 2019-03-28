@@ -58,19 +58,19 @@ ret2:
 
 ENTRY(getpid)
 	push %ebp
-	mov%esp, %ebp
+	mov %esp, %ebp
 	push %ecx
 	push %edx
 	push %ebx
 	// kernel trap to return PID
-	lea r, %eax 
+	lea r1, %eax 
 	push %eax
 	push %ebp
 	movl %esp, %ebp
 	mov $20, %eax
 	sysenter
 	//Return point
-r:	pop %ebp
+r1:	pop %ebp
 	add $4, %ebp
 	//Restore
 	pop %ebx
@@ -87,14 +87,14 @@ ENTRY(fork)
 	push %edx // save edx
 	push %ebx // save ebx
 	//Kernel trap to create process
-	lea r, %eax // sysenter return correctly
+	lea r2, %eax // sysenter return correctly
 	push %eax
 	push %ebp // fake dynamic link
 	movl %esp, %ebp
 	mov $2, %eax
 	sysenter
 	//Retrun point
-r:  pop %ebp
+r2:  pop %ebp
 	add $4, %esp
 	//Restore
 	pop %ebx
@@ -111,14 +111,14 @@ ENTRY(exit)
 	push %edx
 	push %ebx
 	//El link pocho
-	lea ret5, %eax // sysenter return correctly
+	lea r3, %eax // sysenter return correctly
 	push %eax
 	push %ebp // fake dynamic link
 	movl %esp, %ebp
 	mov $1, %eax
 	sysenter
 	//Return point
-r:	pop %ebp
+r3:	pop %ebp
 	add $4, %esp
 	//Restore 
 	pop %ebx

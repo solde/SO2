@@ -127,4 +127,5 @@ void keyboard_RSI(){
 void clock_RSI(){
   increment_ticks();
 	zeos_show_clock();
+  update_schedule();
 }

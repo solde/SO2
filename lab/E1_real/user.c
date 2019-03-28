@@ -31,6 +31,7 @@ int __attribute__ ((__section__(".text.main")))
 	//runjp();
 	//perror();
   while(1){
+		write(1, "user", 4);
 	}
   return 0;
 }

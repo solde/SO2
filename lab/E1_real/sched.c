@@ -7,6 +7,14 @@
 #include <io.h>
 #include <libc.h>
 
+struct list_head freequeue;
+
+struct list_head readyqueue;
+
+struct task_struct * idle_task;
+
+struct task_struct * ini_task;
+
 union task_union task[NR_TASKS]
   __attribute__((__section__(".data.task")));
 
@@ -84,6 +92,8 @@ void init_task1(void)
 	ini_task-> PID = 1; // Assing PID
 	allocate_DIR(ini_task); // Assign memory pages
 	set_user_pages(ini_task); // set 
+
+	ini_task->state = ST_RUN;
 
 	union task_union *u = (union task_union *) ini_task;
 
@@ -175,4 +185,20 @@ void sched_next_rr(){
 
 void init_stats(struct task_struct *t){
 	t->state = ST_READY;
+
+	unsigned long user_ticks = 0;
+	unsigned long system_ticks = 0;
+	unsigned long blocked_ticks = 0;
+	unsigned long ready_ticks = 0;
+	unsigned long elapsed_total_ticks = 0;
+	unsigned long total_trans = 0;
+	unsigned long remaining_ticks = DEFAULT_QUANTUM;
+}
+
+void update_schedule() {
+	update_sched_data_rr();
+	if (needs_sched_rr()) {
+		update_process_state_rr(current(), &readyqueue);
+		sched_next_rr();
+	}
 }

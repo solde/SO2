@@ -8,11 +8,12 @@
 #include <list.h>
 #include <types.h>
 #include <mm_address.h>
+#include <stats.h>
 #include <libc.h>
 
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
-#define DEFAULT_QUANTUM 50
+#define DEFAULT_QUANTUM 5
 
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED };
 
@@ -35,6 +36,7 @@ struct task_struct {
   int quantum;
   int round_time; // Time in execution in ticks.
   enum state_t state;
+  struct stats s;
 };
 
 union task_union {

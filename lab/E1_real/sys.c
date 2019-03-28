@@ -86,7 +86,7 @@ int sys_fork()
   ++NEXT_PID;
 
   int offsetEBP = getEBP() & 0xfff;
-  int newEBP = offsetEBP = (int)new_task_struct;
+  int newEBP = offsetEBP + (int)new_task_struct;
 
   new_task_union->task.kernel_esp = newEBP - sizeof(long);
   new_task_union->stak[offsetEBP/sizeof(long)] = (long)&ret_from_frok;

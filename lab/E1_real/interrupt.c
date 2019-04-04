@@ -120,11 +120,12 @@ void keyboard_RSI(){
       task_switch(ini_task);
       printc_xy(0,0,'Q');
     }
+    */
 	}
-  */
 }
 
 void clock_RSI(){
   increment_ticks();
 	zeos_show_clock();
+  update_schedule();
 }

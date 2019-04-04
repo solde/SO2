@@ -1,0 +1,97 @@
+bochs -q -f .bochsrc
+========================================================================
+                       Bochs x86 Emulator 2.6.7
+              Built from SVN snapshot on November 2, 2014
+                  Compiled on Jun 28 2017 at 12:46:11
+========================================================================
+Kernel Loaded!    Entering user mode...
+(II) Initializing semaphores..OK
+(II) Initializing Backdoor..OK
+
+
+-->Running 33 Tests: deliver 2 <--
+* Running Test [0] : [testGetPID] TEST GETPID-- result OK
+* Running Test [1] : [testNiceRes] CHECK GET/SET_QUANTUM RESULT-- result OK
+* Running Test [2] : [testMemP0] TEST PHYSICAL MEMORY INITIALIZATION P1-- result OK
+* Running Test [3] : [testGetStatsCurrent] GET_STATS(pid is current process)Error code: 0: Operation not permitted TEST: get_stats returns a wrong value -- result BAD
+* Running Test [4] : [testAccountCS] GET_STATS accounts context switchesError code: 0: Operation not permitted INITTEST: unable to get stats 1
+-- result BAD
+* Running Test [5] : [testAccountCSwoBlock] GET_STATS accounts context switches without blocking
+BAD! get_stats returns error for current process!
+ TEST: Ready->Run transitions are not accounted right!
+-- result BAD
+* Running Test [6] : [testTicsAccountingRemaining] GET_STATS DECREASING REMAINING TICKS FOR RUNNING PROCESSES
+BAD! get_stats returns error for current process!
+ TEST: get_stats does not update remaining tics -- result BAD
+* Running Test [7] : [testTicsAccountingRunning2] GET_STATS INCREASING TICKS FOR RUNNING PROCESSES
+BAD! get_stats returns error for current process!
+ TEST: get_stats does not update user_ticks -- result BAD
+* Running Test [8] : [testFatherResultFork] FORK FATHER RESULT-- result OK
+* Running Test [9] : [testChildResultFork] FORK CHILD RESULTError: process survives after exit!-- result OK
+* Running Test [10] : [testForkInheritQuantum] FORK INHERIT QUANTUMError: process survives after exit!-- result OK
+* Running Test [11] : [testForkResetStats] FORK RESET STATSError code: 0: Operation not permitted INITTEST: get_stats returns a negative value -- result BAD
+* Running Test [12] : [testTicsAccountingRunning] GET_STATS INCREASING TICKS FOR RUNNING PROCESSESError code: 0: Operation not permitted INITTEST: get_stats returns a negative value-- result OK
+* Running Test [13] : [testNiceFunctionality] NICE EFFECTS ON SCHEDULINGError code: 0: Operation not permitted TEST: unable to get child stats -- result BAD
+* Running Test [14] : [testCopyGlobalMemory1] FORK DATA COPY: INHERIT AND DO NOT SHARE WITH FATHER)Error: process survives after exit!-- result OK
+* Running Test [15] : [testCopyGlobalMemory2] FORK DATA COPY: INHERIT AND DO NOT SHARE WITH BROTHERS INITTEST: Error creating child processError: process survives after exit!Error: process survives after exit!-- result BAD
+* Running Test [16] : [testForkHierarchy] FORK PROCESS HIERARCHY CREATION TEST: Error creating process hierarchy-- result BAD
+* Running Test [17] : [testExitFreesMem] TEST EXIT FREES DATA FRAMES TEST: Error creating process. Is memory freed after exit?-- result BAD
+* Running Test [18] : [testExit] EXIT REGULAR PROCES  INITTEST: unable to create a child process-- result BAD
+* Running Test [19] : [testOutOfRangeFork] FORK OUT OF RANGE DETECTIONTEST: Fork returns a negative number, but errno is different from EAGAIN or ENOMEM-- result MEDIUM
+* Running Test [20] : [testForkReuse] FORK DATA STRUCTURES RECYCLING AFTER EXITTEST: Fork returns a negative number, but errno is different from EAGAIN or ENOMEMTEST: Fork returns a negative number, but errno is different from EAGAIN or ENOMEM-- result MEDIUM
+* Running Test [21] : [testRoundRobinQuantumRem] FULL QUANTUM AFTER CTX SWITCH
+BAD! get_stats returns error for current process!
+ INITTEST: unable to get current process stats -- result BAD
+* Running Test [22] : [testRoundRobinSwithcNb] ROUND ROBINError code: 0: Operation not permitted INITTEST: fork returns a negative value -- result BAD
+* Running Test [23] : [testTicsAccountingBlocked] GET_STATS INCREASING TICKS FOR BLOCKED PROCESSESError code: 0: Operation not permitted INITTEST: fork returns a negative value -- result BAD
+* Running Test [24] : [testGetStatsInvalidPID] GET_STATS(pid parameter is negative)Error code: 0: Operation not permitted TEST: get_stats returns a negative value, but errno is different from EINVAL-- result MEDIUM
+* Running Test [25] : [testGetStatsUnknownPID] GET_STATS(pid parameter does not exist)Error code: 0: Operation not permitted TEST: get_stats returns a negative value, but errno is different from ESRCH-- result MEDIUM
+* Running Test [26] : [testGetStatsReady] GET_STATS(process is ready)Error code: 0: Operation not permitted INITTEST: fork returns a negative value -- result BAD
+* Running Test [27] : [testGetStatsBlocked] GET_STATS(process is blocked)Error code: 0: Operation not permitted INITTEST: fork returns a negative value -- result BAD
+* Running Test [28] : [testGetStatsDead] GET_STATS(process is dead)Error code: 0: Operation not permitted INITTEST: fork returns a negative value -- result BAD
+* Running Test [29] : [testGetStatsInvalidAddress] GET_STATS(address parameter is NULL)Error code: 0: Operation not permitted TEST: get_stats returns a negative value, but errno is different from EFAULT-- result MEDIUM
+* Running Test [30] : [testGetStatsInvalidAddress1] GET_STATS(address parameter in kernel address space)Error code: 0: Operation not permitted TEST: get_stats returns a negative value, but errno is different from EFAULT-- result MEDIUM
+* Running Test [31] : [testGetStatsInvalidAddress2] GET_STATS(address parameter outside user address space)Error code: 0: Operation not permitted TEST: get_stats returns a negative value, but errno is different from EFAULT-- result MEDIUM
+* Running Test [32] : [testIndependentQuantums] FORK FATHER AND CHILDREN DO NOT SHARE QUANTUMError code: 0: Operation not permitted INITTEST: fork returns a negative value -- result BAD
+
+--> Test final summary: deliver 2 <--
+Test[0]: [testGetPID] TEST GETPID -- Result: OK
+Test[1]: [testNiceRes] CHECK GET/SET_QUANTUM RESULT -- Result: OK
+Test[2]: [testMemP0] TEST PHYSICAL MEMORY INITIALIZATION P1 -- Result: OK
+Test[3]: [testGetStatsCurrent] GET_STATS(pid is current process) -- Result: BAD TEST: get_stats returns a wrong value 
+Test[4]: [testAccountCS] GET_STATS accounts context switches -- Result: BAD INITTEST: unable to get stats 1
+
+Test[5]: [testAccountCSwoBlock] GET_STATS accounts context switches without blocking -- Result: BAD TEST: Ready->Run transitions are not accounted right!
+
+Test[6]: [testTicsAccountingRemaining] GET_STATS DECREASING REMAINING TICKS FOR RUNNING PROCESSES -- Result: BAD TEST: get_stats does not update remaining tics 
+Test[7]: [testTicsAccountingRunning2] GET_STATS INCREASING TICKS FOR RUNNING PROCESSES -- Result: BAD TEST: get_stats does not update user_ticks 
+Test[8]: [testFatherResultFork] FORK FATHER RESULT -- Result: OK
+Test[9]: [testChildResultFork] FORK CHILD RESULT -- Result: OK
+Test[10]: [testForkInheritQuantum] FORK INHERIT QUANTUM -- Result: OK
+Test[11]: [testForkResetStats] FORK RESET STATS -- Result: BAD INITTEST: get_stats returns a negative value 
+Test[12]: [testTicsAccountingRunning] GET_STATS INCREASING TICKS FOR RUNNING PROCESSES -- Result: OK
+Test[13]: [testNiceFunctionality] NICE EFFECTS ON SCHEDULING -- Result: BAD TEST: unable to get child stats 
+Test[14]: [testCopyGlobalMemory1] FORK DATA COPY: INHERIT AND DO NOT SHARE WITH FATHER) -- Result: OK
+Test[15]: [testCopyGlobalMemory2] FORK DATA COPY: INHERIT AND DO NOT SHARE WITH BROTHERS -- Result: BAD INITTEST: Error creating child process
+Test[16]: [testForkHierarchy] FORK PROCESS HIERARCHY CREATION -- Result: BAD TEST: Error creating process hierarchy
+Test[17]: [testExitFreesMem] TEST EXIT FREES DATA FRAMES -- Result: BAD TEST: Error creating process. Is memory freed after exit?
+Test[18]: [testExit] EXIT REGULAR PROCES  -- Result: BAD INITTEST: unable to create a child process
+Test[19]: [testOutOfRangeFork] FORK OUT OF RANGE DETECTION -- Result: MEDIUMTEST: Fork returns a negative number, but errno is different from EAGAIN or ENOMEMSKIPPED
+Test[20]: [testForkReuse] FORK DATA STRUCTURES RECYCLING AFTER EXIT -- Result: MEDIUMTEST: Fork returns a negative number, but errno is different from EAGAIN or ENOMEMSKIPPED
+Test[21]: [testRoundRobinQuantumRem] FULL QUANTUM AFTER CTX SWITCH -- Result: BAD INITTEST: unable to get current process stats 
+Test[22]: [testRoundRobinSwithcNb] ROUND ROBIN -- Result: BAD INITTEST: fork returns a negative value 
+Test[23]: [testTicsAccountingBlocked] GET_STATS INCREASING TICKS FOR BLOCKED PROCESSES -- Result: BAD INITTEST: fork returns a negative value 
+Test[24]: [testGetStatsInvalidPID] GET_STATS(pid parameter is negative) -- Result: MEDIUM TEST: get_stats returns a negative value, but errno is different from EINVALSKIPPED
+Test[25]: [testGetStatsUnknownPID] GET_STATS(pid parameter does not exist) -- Result: MEDIUM TEST: get_stats returns a negative value, but errno is different from ESRCHSKIPPED
+Test[26]: [testGetStatsReady] GET_STATS(process is ready) -- Result: BAD INITTEST: fork returns a negative value 
+Test[27]: [testGetStatsBlocked] GET_STATS(process is blocked) -- Result: BAD INITTEST: fork returns a negative value 
+Test[28]: [testGetStatsDead] GET_STATS(process is dead) -- Result: BAD INITTEST: fork returns a negative value 
+Test[29]: [testGetStatsInvalidAddress] GET_STATS(address parameter is NULL) -- Result: MEDIUM TEST: get_stats returns a negative value, but errno is different from EFAULTSKIPPED
+Test[30]: [testGetStatsInvalidAddress1] GET_STATS(address parameter in kernel address space) -- Result: MEDIUM TEST: get_stats returns a negative value, but errno is different from EFAULTSKIPPED
+Test[31]: [testGetStatsInvalidAddress2] GET_STATS(address parameter outside user address space) -- Result: MEDIUM TEST: get_stats returns a negative value, but errno is different from EFAULTSKIPPED
+Test[32]: [testIndependentQuantums] FORK FATHER AND CHILDREN DO NOT SHARE QUANTUM -- Result: BAD INITTEST: fork returns a negative value 
+Test Results Balance:
+Good tests: 8
+Medium tests: 7
+Bad tests: 18
+Makefile:106: recipe for target 'emul' failed

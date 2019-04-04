@@ -41,11 +41,11 @@ ENTRY(gettime_wraper)
 	mov %esp, %ebp;
 	push %ecx; // save ecx
 	push %edx; // save edx
-	lea ret, %eax; // sysenter return
+	lea ret2, %eax; // sysenter return
 	push %eax;
 	push %ebp; // fake dynamic link
 	movl %esp, %ebp;
-	mov $4, %eax;
+	mov $10, %eax;
 	sysenter;
 ret2:   
 	pop %ebp;
@@ -58,24 +58,23 @@ ret2:
 
 ENTRY(getpid)
 	push %ebp
-	mov%esp, %ebp
+	mov %esp, %ebp
 	push %ecx
 	push %edx
-	push %ebx
 	// kernel trap to return PID
-	lea r, %eax 
+	lea r1, %eax 
 	push %eax
 	push %ebp
 	movl %esp, %ebp
 	mov $20, %eax
 	sysenter
-
-r:	pop %ebp
-	add $4, %ebp
-	pop %ebx
+	//Return point
+r1:	
+	pop %ebp
+	add $4, %esp
+	//Restore
 	pop %edx
 	pop %ecx
-
 	mov %ebp, %esp
 	pop %ebp
 	ret
@@ -87,16 +86,70 @@ ENTRY(fork)
 	push %edx // save edx
 	push %ebx // save ebx
 	//Kernel trap to create process
-	lea r, %eax // sysenter return correctly
+	lea r2, %eax // sysenter return correctly
 	push %eax
 	push %ebp // fake dynamic link
 	movl %esp, %ebp
 	mov $2, %eax
 	sysenter
 	//Retrun point
-r:  pop %ebp
+r2: pop %ebp
 	add $4, %esp
+	//Restore
+	pop %ebx
+	pop %edx
+	pop %ecx
+   	mov %ebp, %esp
+	pop %ebp
+	ret
 
+ENTRY(exit)
+	push %ebp
+	mov %esp, %ebp
+	push %ecx
+	push %edx
+	push %ebx
+	//El link pocho
+	lea r3, %eax // sysenter return correctly
+	push %eax
+	push %ebp // fake dynamic link
+	movl %esp, %ebp
+	mov $1, %eax
+	sysenter
+	//Return point
+r3:	
+	pop %ebp
+	add $4, %esp
+	//Restore 
+	pop %ebx
+	pop %edx
+	pop %ecx
+   	mov %ebp, %esp
+	pop %ebp
+	ret
+
+ENTRY(get_stats)
+	push %ebp
+	mov %esp, %ebp
+
+	push %ecx
+	push %edx
+	push %ebx
+
+	mov 12(%ebp), %ecx
+	mov 8(%ebp), %ebx
+
+	//El link pocho
+	lea r4, %eax // sysenter return correctly
+	push %eax
+	push %ebp // fake dynamic link
+	movl %esp, %ebp
+	mov $35, %eax
+	sysenter
+	//Return point
+r4:	pop %ebp
+	add $4, %esp
+	//Restore 
 	pop %ebx
 	pop %edx
 	pop %ecx

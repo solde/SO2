@@ -8,12 +8,24 @@
 #include <list.h>
 #include <types.h>
 #include <mm_address.h>
+#include <stats.h>
 #include <libc.h>
 
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
+#define DEFAULT_QUANTUM 5
 
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED };
+
+extern struct task_struct * idle_task;
+
+extern struct task_struct * ini_task;
+
+extern struct list_head freequeue;
+
+extern struct list_head readyqueue;
+
+extern struct list_head blocked; 
 
 struct task_struct {
   int PID;			/* Process ID. This MUST be the first field of the struct. */
@@ -22,8 +34,8 @@ struct task_struct {
   int kernel_esp;
   struct list_head list;
   int quantum;
-  int executed_time; // Time in execution in ticks.
   enum state_t state;
+  struct stats s;
 };
 
 union task_union {
@@ -50,7 +62,7 @@ extern void task_switch(union task_union*t);
 
 void inner_task_switch(union task_union*t);
 
-extern int getESP();
+extern int getEBP();
 
 extern void setEBP(int new_value);
 
@@ -69,7 +81,13 @@ void sched_next_rr();
 void update_process_state_rr(struct task_struct *t, struct list_head *dest);
 int needs_sched_rr();
 void update_sched_data_rr();
-void set_quantum(struct task_struct *t);
+void set_quantum(struct task_struct *t, int new_quantum);
 int get_quantum(struct task_struct *t);
+void init_stats(struct task_struct *t);
 
 #endif  /* __SCHED_H__ */
+
+void update_stats_a();
+void update_stats_b();
+void update_stats_c();
+void update_stats_d(struct task_struct *t);

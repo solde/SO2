@@ -79,7 +79,7 @@ ENTRY(task_switch)
 	// 2 - Call inner_task_switch
 	push 8(%ebp);	
 	call inner_task_switch;
-	//add $4, %esp
+	add $4, %esp
 	//3 - Restore
 	pop %ebx;
 	pop %edi;

@@ -29,6 +29,8 @@ void system_call_handler();
 void syscall_handler_sysenter();
 void writeMSR(int addr, int val);
 
+void update_schedule();
+
 extern struct task_struct * idle_task;
 
 extern struct task_struct * ini_task;

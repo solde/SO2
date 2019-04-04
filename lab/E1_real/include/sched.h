@@ -84,6 +84,7 @@ void update_sched_data_rr();
 void set_quantum(struct task_struct *t, int new_quantum);
 int get_quantum(struct task_struct *t);
 void init_stats(struct task_struct *t);
+int get_initial_quantum();
 
 #endif  /* __SCHED_H__ */
 

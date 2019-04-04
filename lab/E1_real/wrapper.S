@@ -109,7 +109,7 @@ ENTRY(exit)
 	push %ecx
 	push %edx
 	push %ebx
-	//El link pocho
+
 	lea r3, %eax // sysenter return correctly
 	push %eax
 	push %ebp // fake dynamic link
@@ -132,27 +132,43 @@ ENTRY(get_stats)
 	push %ebp
 	mov %esp, %ebp
 
-	push %ecx
-	push %edx
-	push %ebx
+	push %ecx // save ecx
+	push %edx // save edx
+	push %ebx // save ebx
 
-	mov 12(%ebp), %ecx
-	mov 8(%ebp), %ebx
+	mov 12(%ebp), %ecx #stats*
+	mov 8(%ebp), %ebx #pid
 
-	//El link pocho
-	lea r4, %eax // sysenter return correctly
+	lea r6, %eax // sysenter return correctly
 	push %eax
 	push %ebp // fake dynamic link
 	movl %esp, %ebp
 	mov $35, %eax
 	sysenter
-	//Return point
-r4:	pop %ebp
+r6: 
+	pop %ebp
 	add $4, %esp
-	//Restore 
+
 	pop %ebx
 	pop %edx
 	pop %ecx
-   	mov %ebp, %esp
+
+	mov %ebp, %esp
+	pop %ebp
+
+
+	cmp $0, %eax // check return value of the implementation
+	je end_stat // if 0, leave it as is, the syscall succeeded
+	// if syscall fails, store the reason in errno
+	lea errno, %ebx
+	mov %eax, (%ebx)
+	mov $-1, %eax // return -1
+
+end_stat:
+	pop %ebx
+	pop %edx
+	pop %ecx
+
+	mov %ebp, %esp
 	pop %ebp
 	ret

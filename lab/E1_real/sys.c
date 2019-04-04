@@ -94,7 +94,7 @@ int sys_fork()
   new_task_struct->PID = NEXT_PID;
   ++NEXT_PID;
 
-  new_task_struct->quantum = DEFAULT_QUANTUM;
+  set_quantum(new_task_struct, get_initial_quantum());
   new_task_struct->state = ST_READY;
 
   int offsetEBP = getEBP() & 0xfff;

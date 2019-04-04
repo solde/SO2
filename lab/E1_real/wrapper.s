@@ -145,23 +145,39 @@ r3:
  push %edx
  push %ebx
 
- mov 12(%ebp), %ecx
- mov 8(%ebp), %ebx
+ mov 12(%ebp), %ecx #stats*
+ mov 8(%ebp), %ebx #pid
 
-
- lea r4, %eax
+ lea r6, %eax
  push %eax
  push %ebp
  movl %esp, %ebp
  mov $35, %eax
  sysenter
-
-r4: pop %ebp
+r6:
+ pop %ebp
  add $4, %esp
 
  pop %ebx
  pop %edx
  pop %ecx
-    mov %ebp, %esp
+
+ mov %ebp, %esp
+ pop %ebp
+
+
+ cmp $0, %eax
+ je end_stat
+
+ lea errno, %ebx
+ mov %eax, (%ebx)
+ mov $-1, %eax
+
+end_stat:
+ pop %ebx
+ pop %edx
+ pop %ecx
+
+ mov %ebp, %esp
  pop %ebp
  ret

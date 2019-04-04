@@ -15,6 +15,8 @@ struct task_struct * idle_task;
 
 struct task_struct * ini_task;
 
+int q;
+
 union task_union task[NR_TASKS]
   __attribute__((__section__(".data.task")));
 
@@ -139,6 +141,11 @@ void inner_task_switch(union task_union*new){
 
 void set_quantum(struct task_struct *t, int new_quantum){
 	t->quantum = new_quantum;
+	q = new_quantum;
+}
+
+int get_initial_quantum(){
+	return q;
 }
 
 int get_quantum(struct task_struct *t){
@@ -200,6 +207,8 @@ void init_stats(struct task_struct *t){
 void update_schedule() {
 	update_sched_data_rr();
 	if (needs_sched_rr()) {
+		if(list_empty(&readyqueue)) return;
+		
 		update_process_state_rr(current(), &readyqueue);
 		sched_next_rr();
 	}

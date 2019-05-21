@@ -12,6 +12,10 @@
 #define NUM_PAG_DATA 20
 #define PAGE_SIZE 0x1000
 
+//SBRK defienes
+
+#define MAX_HEAP 20*PAGE_SIZE
+#define INIT_HEAP (PAG_LOG_INIT_DATA+NUM_PAG_DATA)
 /* Memory distribution */
 /***********************/
 

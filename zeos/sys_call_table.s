@@ -46,7 +46,17 @@
  .long sys_ni_syscall
  .long sys_ni_syscall
  .long sys_ni_syscall
- .long sys_get_stats
+ .long sys_ni_syscall
+ .long sys_ni_syscall
+ .long sys_ni_syscall
+ .long sys_ni_syscall
+ .long sys_ni_syscall
+ .long sys_ni_syscall
+ .long sys_ni_syscall
+ .long sys_ni_syscall
+ .long sys_ni_syscall
+ .long sys_ni_syscall
+ .long sys_sbrk
 
     .globl MAX_SYSCALL
     MAX_SYSCALL = (. - sys_call_table)/

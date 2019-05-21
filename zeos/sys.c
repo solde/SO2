@@ -279,7 +279,7 @@ int sys_sem_signal(int id){
 int sys_sem_destroy(int id){
 	struct semaphore *s = get_sem(id);
 	if (s == NULL) return -EINVAL; // invalid sem
-	if (s->owner != current()->PID) return -EPERM; // Cambiarlo a eperm da page fault???
+	if (s->owner != current()->PID) return -EPERM; 
 	while (!list_empty(&s->blockqueue)) {
 		struct task_struct *t = list_head_to_task_struct(list_first(&s->blockqueue));
 		update_process_state_rr(t, &readyqueue);
@@ -290,6 +290,43 @@ int sys_sem_destroy(int id){
 	return 0;
 }
 
-void * sys_skrk(int increment){
 
+
+void * sys_sbrk(int increment){
+	
+	int brkc = current()->brk;
+	if(brkc+increment>=MAX_HEAP) return -ENOMEM;
+	int unchanged= ff_page();
+	
+	current()->brk+=increment;
+	
+	if(current()->brk<0) current()->brk=0;
+	page_table_entry *pt=get_PT(current());
+	int changed = ff_page();
+	int diff = changed-unchanged;
+	int heaps[diff];
+	
+	for(int i=0;i<diff;i++){
+		heaps[i]= alloc_frame();
+		if(heaps[i]<0) {
+			for(int j=0;j<i;j++){
+				free_frame(heaps[j]);
+			}
+			return -ENOMEM;
+		}
+	}
+	for( int k = 0; k < diff; k++){
+		set_ss_pag(pt,unchanged+k,heaps[k]);
+	}
+	
+	//delete pages
+	for(int i=0;i<-diff;i++){
+		free_frame(pt[unchanged-i-1].bits.pbase_addr);
+		pt[unchanged-i-1].entry=0;
+	}
+	set_cr3(current()->dir_pages_baseAddr);
+	
+	return INIT_HEAP*PAGE_SIZE+brkc; 
+	
+	
 }

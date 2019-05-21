@@ -193,7 +193,7 @@ int sys_clone(void (*function), void *stack){
 	list_del(e);
 	struct task_struct * newt = list_entry( e, struct task_struct, list );
 
-	newt->PID=pid++;
+	
 
 	union task_union *newt_u = (union task_union *) newt;
 	struct task_struct *curr_t = current();
@@ -203,6 +203,8 @@ int sys_clone(void (*function), void *stack){
 
 	newt_u->stack[KERNEL_STACK_SIZE - 2] = stack;
 	newt_u->stack[KERNEL_STACK_SIZE - 5] = function;
+
+	newt->PID=++pid;
 
 	int ebp_offset = getEBP() & 0xfff;
 	int new_ebp = ebp_offset + (int)newt;
@@ -259,6 +261,7 @@ int sys_sem_init(int id, unsigned int value){
 	s->id = id;
 	s->value = value;
 	s->owner = current()->PID;
+	s->version++;
 
 	INIT_LIST_HEAD(&s->blockqueue);
 
@@ -273,9 +276,10 @@ int sys_sem_wait(int id){
 	if (s->value > 0) {
 		s->value--;
 	} else {
+		current()->sem_ver = s->version;
 		update_process_state_rr(current(), &(s->blockqueue));
 		sched_next_rr();
-		if( s->owner == -1) return  -1;
+		if( s->version != current()->sem_ver) return  -1;
 	}
 
 	return 0;
@@ -305,7 +309,7 @@ int sys_sem_destroy(int id){
 		printk("test");
 
 		struct list_head * e = list_first(&(s->blockqueue));
-		list_del(e);
+		//list_del(e);
 		struct task_struct * t = list_entry(e, struct task_struct, list);
 
 		update_process_state_rr(t, &readyqueue);
@@ -322,7 +326,7 @@ void * sys_sbrk(int increment){
 	
 	int brkc = current()->brk;
 	if(brkc+increment>=MAX_HEAP) return -ENOMEM;
-	int unchanged= ff_page();
+	int unchanged = ff_page();
 	
 	current()->brk+=increment;
 	
@@ -330,15 +334,18 @@ void * sys_sbrk(int increment){
 	page_table_entry *pt=get_PT(current());
 
 	int changed = ff_page();
-	int diff = changed-unchanged;
+	int diff;
+	if(brkc & 0xF000 == current()->brk & 0xF000) diff = 0;
+	else{
+		diff = increment/PAGE_SIZE;
+		if(brkc-current()->brk < increment) ++diff;
+	}
 	
-	
-	for (int i = 0; i <diff; ++i)
-	{
+	for (int i = 0; i <diff; ++i){
 		int heaps[diff];
 	
 		for(int i=0;i<diff;i++){
-			heaps[i]= alloc_frame();
+			heaps[i] = alloc_frame();
 			if(heaps[i]<0) {
 				for(int j=0;j<i;j++){
 					free_frame(heaps[j]);
@@ -361,53 +368,9 @@ void * sys_sbrk(int increment){
 	set_cr3(current()->dir_pages_baseAddr);
 
 	return INIT_HEAP*PAGE_SIZE+brkc; 
-	
-	/*	int prev = current()->brk;
-	int prevPageIndex = ff_page();
-
-	// system imposed limit on per process heap
-	if (current()->brk + increment >= MAX_HEAP) return -ENOMEM; 
-
-	current()->brk += increment;
-
-	if (current()->brk < 0) current()->brk = 0;
-
-	int newPageIndex = ff_page();
-	int pageDiff = newPageIndex - prevPageIndex;
-	
-
-	page_table_entry *pt =  get_PT(current());
-	// allocate new pages for the heap
-	for (int i = 0; i < pageDiff; i++) {
-		int heapFrames[pageDiff];
-		for (int i = 0; i < pageDiff; i++){
-			heapFrames[i] = alloc_frame();
-			if (heapFrames[i] < 0) {
-				for (int j = 0;j < i; j++) free_frame(heapFrames[j]);
-		printk("\n sys_sbrk ENOMEM\n");
-				return -ENOMEM;
-			}
-		}
-		// Only when we know there are enough physical pages, we allocate the data
-		for (int i = 0; i < pageDiff; i++) {
-			set_ss_pag(pt, prevPageIndex + i, heapFrames[i]); 
-		}
-	}
-
-	// free unused pages
-	for (int i = 0; i < -pageDiff; i++) {
-		free_frame(pt[prevPageIndex-i-1].bits.pbase_addr);
-		pt[prevPageIndex-i-1].entry = 0;
-	}
-	// flush the TLb, we should no longer have access to this
-	set_cr3(current()->dir_pages_baseAddr);
-
-
-	return INIT_HEAP * PAGE_SIZE + prev;
-	*/
 }
 
-int sys_read_keyboard(char * buf, int counter){
+/*int sys_read_keyboard(char * buf, int counter){
 	if(!list_empty(&keyboardqueue)){
 		update_process_state_rr(current(), &keyboardqueue);
 		sched_next_rr();
@@ -436,7 +399,7 @@ int sys_read_keyboard(char * buf, int counter){
 
 int sys_read(int fd, char *buf, int count){
 	int fd_error = check_fd(fd, LECTURA);
-	if(e != 0) return e;
+	if(fd_error != 0) return fd_error;
 	if(!access_ok(VERIFY_READ, buf, count)) return -EFAULT;
-	return ret = sys_read_keyboard(buf, count);
-}
+	return sys_read_keyboard(buf, count);
+}*/

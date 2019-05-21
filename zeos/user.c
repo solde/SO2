@@ -26,7 +26,7 @@ int __attribute__ ((__section__(".text.main")))
 
   //runjp_rank(1, 1);
 
-  //runjp_rank(7, 7); 
+  //runjp_rank(6, 6); 
  
   //runjp_rank(12, 12);
 
@@ -35,8 +35,13 @@ int __attribute__ ((__section__(".text.main")))
 
   //runjp_rank(16,16);
 
-  //runjp();
+  runjp();
   //sem_init(1, 2);
+
+  /*int pid = fork();
+  if(pid == 1){
+    write(1, "error", 5);
+  }*/
 
 
   while(1);

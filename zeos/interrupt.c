@@ -14,7 +14,7 @@
 Gate idt[IDT_ENTRIES];
 Register    idtR;
 
-extern circular_buffer keyboard_buffer;
+extern struct circular_buffer keyboard_buffer;
 
 
 char char_map[] =

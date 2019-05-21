@@ -11,6 +11,7 @@
 # 3 "sys_call_table.S" 2
 
 .globl sys_call_table; .type sys_call_table, @function; .align 0; sys_call_table:
+
  .long sys_ni_syscall
  .long sys_exit
  .long sys_fork

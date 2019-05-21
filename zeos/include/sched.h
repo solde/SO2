@@ -23,6 +23,7 @@ struct semaphore {
 	int id;
 	int value;
 	int owner; // pid
+  int version;
 	struct list_head blockqueue;
 };
 int free_dirs[NR_TASKS];
@@ -38,6 +39,7 @@ struct task_struct {
   int dir_pos;
   int clone_pid;
   int brk;
+  int sem_ver;
 };
 
 union task_union {

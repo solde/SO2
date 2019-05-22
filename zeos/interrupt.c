@@ -14,15 +14,17 @@
 Gate idt[IDT_ENTRIES];
 Register    idtR;
 
+extern circular_buffer keyboard_buffer;
+
 
 char char_map[] =
 {
   '\0','\0','1','2','3','4','5','6',
-  '7','8','9','0','\'','¡','\0','\0',
+  '7','8','9','0','\'','ï¿½','\0','\0',
   'q','w','e','r','t','y','u','i',
   'o','p','`','+','\0','\0','a','s',
-  'd','f','g','h','j','k','l','ñ',
-  '\0','º','\0','ç','z','x','c','v',
+  'd','f','g','h','j','k','l','ï¿½',
+  '\0','ï¿½','\0','ï¿½','z','x','c','v',
   'b','n','m',',','.','-','\0','*',
   '\0','\0','\0','\0','\0','\0','\0','\0',
   '\0','\0','\0','\0','\0','\0','\0','7',
@@ -113,6 +115,9 @@ void read_char_from_keyboard(){
 	unsigned char c=inb(0x60);
 	int tmp = c & 0x80;
 	int tmpm= c & 0x7f;
+	if(tmp == 0){
+		
+	}
 }
 
 void printchar(){ //DONE
@@ -135,4 +140,6 @@ void clock_int(){
  controler();
 }
 
-
+void init_keyboard_buffer(){
+  
+}

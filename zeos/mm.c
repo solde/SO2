@@ -84,28 +84,28 @@ void set_user_pages( struct task_struct *task )
 
   /* CODE */
   for (pag=0;pag<NUM_PAG_CODE;pag++){
-	new_ph_pag=alloc_frame();
-  	process_PT[PAG_LOG_INIT_CODE+pag].entry = 0;
-  	process_PT[PAG_LOG_INIT_CODE+pag].bits.pbase_addr = new_ph_pag;
-  	process_PT[PAG_LOG_INIT_CODE+pag].bits.user = 1;
-  	process_PT[PAG_LOG_INIT_CODE+pag].bits.present = 1;
+  new_ph_pag=alloc_frame();
+    process_PT[PAG_LOG_INIT_CODE+pag].entry = 0;
+    process_PT[PAG_LOG_INIT_CODE+pag].bits.pbase_addr = new_ph_pag;
+    process_PT[PAG_LOG_INIT_CODE+pag].bits.user = 1;
+    process_PT[PAG_LOG_INIT_CODE+pag].bits.present = 1;
   }
   
   /* DATA */ 
   for (pag=0;pag<NUM_PAG_DATA;pag++){
-	new_ph_pag=alloc_frame();
-  	process_PT[PAG_LOG_INIT_DATA+pag].entry = 0;
-  	process_PT[PAG_LOG_INIT_DATA+pag].bits.pbase_addr = new_ph_pag;
-  	process_PT[PAG_LOG_INIT_DATA+pag].bits.user = 1;
-  	process_PT[PAG_LOG_INIT_DATA+pag].bits.rw = 1;
-  	process_PT[PAG_LOG_INIT_DATA+pag].bits.present = 1;
+  new_ph_pag=alloc_frame();
+    process_PT[PAG_LOG_INIT_DATA+pag].entry = 0;
+    process_PT[PAG_LOG_INIT_DATA+pag].bits.pbase_addr = new_ph_pag;
+    process_PT[PAG_LOG_INIT_DATA+pag].bits.user = 1;
+    process_PT[PAG_LOG_INIT_DATA+pag].bits.rw = 1;
+    process_PT[PAG_LOG_INIT_DATA+pag].bits.present = 1;
   }
 }
 
 /* Writes on CR3 register producing a TLB flush */
 void set_cr3(page_table_entry * dir)
 {
- 	asm volatile("movl %0,%%cr3": :"r" (dir));
+  asm volatile("movl %0,%%cr3": :"r" (dir));
 }
 
 /* Macros for reading/writing the CR0 register, where is shown the paging status */
@@ -217,7 +217,7 @@ int alloc_frame( void )
             return i;
         }
         i += 2; /* NOTE: There will be holes! This is intended. 
-			DO NOT MODIFY! */
+      DO NOT MODIFY! */
     }
 
     return -1;
@@ -229,7 +229,7 @@ void free_user_pages( struct task_struct *task )
  page_table_entry * process_PT =  get_PT(task);
     /* DATA */
  for (pag=0;pag<NUM_PAG_DATA;pag++){
-	 free_frame(process_PT[PAG_LOG_INIT_DATA+pag].bits.pbase_addr);
+   free_frame(process_PT[PAG_LOG_INIT_DATA+pag].bits.pbase_addr);
          process_PT[PAG_LOG_INIT_DATA+pag].entry = 0;
  }
 }
@@ -245,11 +245,11 @@ void free_frame( unsigned int frame )
 /* set_ss_pag - Associates logical page 'page' with physical page 'frame' */
 void set_ss_pag(page_table_entry *PT, unsigned page,unsigned frame)
 {
-	PT[page].entry=0;
-	PT[page].bits.pbase_addr=frame;
-	PT[page].bits.user=1;
-	PT[page].bits.rw=1;
-	PT[page].bits.present=1;
+  PT[page].entry=0;
+  PT[page].bits.pbase_addr=frame;
+  PT[page].bits.user=1;
+  PT[page].bits.rw=1;
+  PT[page].bits.present=1;
 
 }
 
@@ -265,7 +265,10 @@ unsigned int get_frame (page_table_entry *PT, unsigned int logical_page){
 }
 
 int ff_page(){
-	int y= current()->brk;
-	int num_pages= y/PAGE_SIZE +(y%PAGE_SIZE) ;
-	return num_pages+ INIT_HEAP;
+  int y= current()->brk;
+  int num_pages= y/PAGE_SIZE +(y%PAGE_SIZE) ;
+  return num_pages+ INIT_HEAP;
+}
+int curr_heap_pages() {
+  return ff_page()-INIT_HEAP;
 }

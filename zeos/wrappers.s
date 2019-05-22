@@ -334,29 +334,33 @@ retF:
   ret
 
 .globl sbrk; .type sbrk, @function; .align 0; sbrk:
- push %ebp
- mov %esp, %ebp
- push %ebx
+  push %ebp
+  movl %esp, %ebp
+  push %ecx
+  push %edx
+  push %ebx
 
- mov 8(%ebp), %ebx
- lea ret_sbrk, %eax
+  mov 8(%ebp), %ebx
+  lea retsb, %esi
+  push %esi
+  push %ebp
+  movl %esp, %ebp
+  movl $45, %eax
+  sysenter
+ retsb:
+  popl %ebp
+  popl %esi
+  popl %ebx
+  popl %edx
+  popl %ecx
 
- push %ebp
- movl %esp, %ebp
- mov $45, %eax
- sysenter
-ret_sbrk:
- pop %ebp
- add $4, %esp
- pop %ebx
- cmp $0, %eax
- jge end_sbrk
- lea errno, %ebx
- not %eax
- add $1, %eax
- mov %eax, (%ebx)
- mov $-1, %eax
-end_sbrk:
- mov %ebp, %esp
- pop %ebp
- ret
+  cmp $0, %eax
+  jge skipsb
+  leal errno, %ebx
+  negl %eax
+  movl %eax, (%ebx)
+  movl $-1, %eax
+ skipsb:
+  movl %ebp, %esp
+  popl %ebp
+  ret

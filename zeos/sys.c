@@ -67,7 +67,7 @@ int sys_fork(){
 		set_ss_pag(process_PT, PAG_LOG_INIT_CODE + i, get_frame(process_APT, PAG_LOG_INIT_CODE+i));
 	for (int i = 0; i < NUM_PAG_KERNEL; i++)
 		set_ss_pag(process_PT, i, get_frame(process_APT, i));
-
+/*
 	int tmp[NUM_PAG_DATA];
 	for(int i=0;i<NUM_PAG_DATA;i++){
 		tmp[i]=alloc_frame();
@@ -85,7 +85,25 @@ int sys_fork(){
 		copy_data((void*)((PAG_LOG_INIT_DATA + k)*PAGE_SIZE), (void*)((page+k)*PAGE_SIZE), PAGE_SIZE); //copiar les pagines del pare
 		del_ss_pag(process_APT, page + k); //bye bye assignacio temp
 		set_cr3(act->dir_pages_baseAddr); //flush tlb
+	}*/
+		int numFrames = NUM_PAG_DATA + curr_heap_pages();
+ 	int frames[numFrames];
+	for (int i = 0; i < numFrames; i++) {
+
+		frames[i] = alloc_frame();
+		if (frames[i] < 0) {
+			for (int j = 0;j < i; j++) free_frame(frames[j]);
+			printk("\n sys_fork ENOMEM\n");
+			return -ENOMEM;
+		}
 	}
+	for (int i = 0; i < numFrames; i++) {
+		set_ss_pag(process_PT, PAG_LOG_INIT_DATA + i, frames[i]); 
+		set_ss_pag(process_APT,INIT_HEAP + curr_heap_pages() + i, frames[i]);
+		copy_data((void*)((PAG_LOG_INIT_DATA + i)*PAGE_SIZE), (void*)((INIT_HEAP+curr_heap_pages()+i)*PAGE_SIZE), PAGE_SIZE); 
+		del_ss_pag(process_APT, INIT_HEAP + curr_heap_pages() + i);
+	}
+	set_cr3(act->dir_pages_baseAddr);
 
 	son->PID=pid++;
 	int ebp_offset = getEBP() & 0xfff;
@@ -170,46 +188,50 @@ int sys_clone(void (*function), void *stack){
 	if (list_empty(&freequeue)) { //Si no hi han espais lliures
 		return -EAGAIN;
 	}
-    	struct list_head * e = list_first( &freequeue );
+
+	struct list_head * e = list_first( &freequeue );
 	list_del(e);
-	struct task_struct * pipo = list_entry( e, struct task_struct, list );
-	pipo->PID=pid++;
-	union task_union *pipo_u = (union task_union *) pipo;
+	struct task_struct * newt = list_entry( e, struct task_struct, list );
+
+	newt->PID=pid++;
+
+	union task_union *newt_u = (union task_union *) newt;
 	struct task_struct *curr_t = current();
 	union task_union *curr_u = (union task_union*) curr_t;
 	
-	copy_data(curr_u, pipo_u, KERNEL_STACK_SIZE * sizeof(long));
+	copy_data(curr_u, newt_u, KERNEL_STACK_SIZE * sizeof(long));
 
-	pipo_u->stack[KERNEL_STACK_SIZE - 2] = stack;
-	pipo_u->stack[KERNEL_STACK_SIZE - 5] = function;
+	newt_u->stack[KERNEL_STACK_SIZE - 2] = stack;
+	newt_u->stack[KERNEL_STACK_SIZE - 5] = function;
 
 	int ebp_offset = getEBP() & 0xfff;
-	int new_ebp = ebp_offset + (int)pipo;
-	pipo->kernel_ebp = new_ebp - 1*sizeof(long);
-	pipo_u->stack[ebp_offset/sizeof(long) - 0] = (long)&return_from_fork;
-	pipo_u->stack[ebp_offset/sizeof(long) - 1] = 0;
+	int new_ebp = ebp_offset + (int)newt;
+	newt->kernel_ebp = new_ebp - 1*sizeof(long);
+	newt_u->stack[ebp_offset/sizeof(long) - 0] = (long)&return_from_fork;
+	newt_u->stack[ebp_offset/sizeof(long) - 1] = 0;
 
-	init_stat(pipo);
+	init_stat(newt);
 	free_dirs[current()->dir_pos]++;
-	pipo->dir_pos=current()->dir_pos;
-	list_add_tail(&pipo->list, &readyqueue);
-	pipo->clone_pid=current()->PID;
-	return pipo->PID;
+	newt->dir_pos=current()->dir_pos;
+
+	list_add_tail(&newt->list, &readyqueue);
+	newt->clone_pid=current()->PID;
+	return newt->PID;	
 }
 
 void sys_exit(){ 
-
-	if(free_dirs[current()->dir_pos]<=1)  { //nomes queda el procces orignial
-		free_user_pages(current());
-		free_dirs[current()->dir_pos]--;
-	}
-	update_process_state_rr(current(), &freequeue);
 	//eliminació de sem associats
 	for (int i = 0; i < NR_SEMAPHORES; i++){
 		if (semaphores[i].owner == current()->PID)
 			sys_sem_destroy(semaphores[i].id);
 	}
 
+	if(free_dirs[current()->dir_pos]<=1)  { //nomes queda el procces orignial
+		free_user_pages(current());
+		free_dirs[current()->dir_pos]--;
+	}
+	update_process_state_rr(current(), &freequeue);
+	
 	current()->PID=-1;
 
 	sched_next_rr();
@@ -238,7 +260,6 @@ int sys_sem_init(int id, unsigned int value){
 	s->value = value;
 	s->owner = current()->PID;
 
-
 	INIT_LIST_HEAD(&s->blockqueue);
 
 	return 0;
@@ -252,7 +273,7 @@ int sys_sem_wait(int id){
 	if (s->value > 0) {
 		s->value--;
 	} else {
-		update_process_state_rr(current(), &s->blockqueue);
+		update_process_state_rr(current(), &(s->blockqueue));
 		sched_next_rr();
 		if( s->owner == -1) return  -1;
 	}
@@ -281,7 +302,12 @@ int sys_sem_destroy(int id){
 	if (s == NULL) return -EINVAL; // invalid sem
 	if (s->owner != current()->PID) return -EPERM; 
 	while (!list_empty(&s->blockqueue)) {
-		struct task_struct *t = list_head_to_task_struct(list_first(&s->blockqueue));
+		printk("test");
+
+		struct list_head * e = list_first(&(s->blockqueue));
+		list_del(e);
+		struct task_struct * t = list_entry(e, struct task_struct, list);
+
 		update_process_state_rr(t, &readyqueue);
 		//s->id=-1;
 	}
@@ -302,31 +328,115 @@ void * sys_sbrk(int increment){
 	
 	if(current()->brk<0) current()->brk=0;
 	page_table_entry *pt=get_PT(current());
+
 	int changed = ff_page();
 	int diff = changed-unchanged;
-	int heaps[diff];
 	
-	for(int i=0;i<diff;i++){
-		heaps[i]= alloc_frame();
-		if(heaps[i]<0) {
-			for(int j=0;j<i;j++){
-				free_frame(heaps[j]);
+	
+	for (int i = 0; i <diff; ++i)
+	{
+		int heaps[diff];
+	
+		for(int i=0;i<diff;i++){
+			heaps[i]= alloc_frame();
+			if(heaps[i]<0) {
+				for(int j=0;j<i;j++){
+					free_frame(heaps[j]);
+				}	
+				return -ENOMEM;
 			}
-			return -ENOMEM;
+
+		} 
+
+		for( int k = 0; k < diff; k++){
+			set_ss_pag(pt,unchanged+k,heaps[k]);
 		}
 	}
-	for( int k = 0; k < diff; k++){
-		set_ss_pag(pt,unchanged+k,heaps[k]);
-	}
-	
+
 	//delete pages
 	for(int i=0;i<-diff;i++){
 		free_frame(pt[unchanged-i-1].bits.pbase_addr);
 		pt[unchanged-i-1].entry=0;
 	}
 	set_cr3(current()->dir_pages_baseAddr);
-	
+
 	return INIT_HEAP*PAGE_SIZE+brkc; 
 	
+	/*	int prev = current()->brk;
+	int prevPageIndex = ff_page();
+
+	// system imposed limit on per process heap
+	if (current()->brk + increment >= MAX_HEAP) return -ENOMEM; 
+
+	current()->brk += increment;
+
+	if (current()->brk < 0) current()->brk = 0;
+
+	int newPageIndex = ff_page();
+	int pageDiff = newPageIndex - prevPageIndex;
 	
+
+	page_table_entry *pt =  get_PT(current());
+	// allocate new pages for the heap
+	for (int i = 0; i < pageDiff; i++) {
+		int heapFrames[pageDiff];
+		for (int i = 0; i < pageDiff; i++){
+			heapFrames[i] = alloc_frame();
+			if (heapFrames[i] < 0) {
+				for (int j = 0;j < i; j++) free_frame(heapFrames[j]);
+		printk("\n sys_sbrk ENOMEM\n");
+				return -ENOMEM;
+			}
+		}
+		// Only when we know there are enough physical pages, we allocate the data
+		for (int i = 0; i < pageDiff; i++) {
+			set_ss_pag(pt, prevPageIndex + i, heapFrames[i]); 
+		}
+	}
+
+	// free unused pages
+	for (int i = 0; i < -pageDiff; i++) {
+		free_frame(pt[prevPageIndex-i-1].bits.pbase_addr);
+		pt[prevPageIndex-i-1].entry = 0;
+	}
+	// flush the TLb, we should no longer have access to this
+	set_cr3(current()->dir_pages_baseAddr);
+
+
+	return INIT_HEAP * PAGE_SIZE + prev;
+	*/
+}
+
+int sys_read_keyboard(char * buf, int counter){
+	if(!list_empty(&keyboardqueue)){
+		update_process_state_rr(current(), &keyboardqueue);
+		sched_next_rr();
+	}
+	char * aux = buf;
+	int r_counter = counter;
+	while(r_counter > 0){
+		if(cb_is_emtpy(&keyboard_buffer)){
+			block_read_process(current(), &keyboardqueue);
+			sched_next_rr();
+		}
+		int buflen = 8;
+		int buffer[buflen];
+		int i = 0;
+		while(i < buflen && !cb_is_emtpy(&keyboard_buffer) && r_counter > 0){
+			cb_read(&keyboard_buffer, &buffer[i]);
+			r_counter--;
+			++i;
+		}
+		copy_to_user(buffer, aux, i);
+		++aux;
+
+	}
+	return counter;
+}
+
+int sys_read(int fd, char *buf, int count){
+	int fd_error = check_fd(fd, LECTURA);
+	if(e != 0) return e;
+	if(!access_ok(VERIFY_READ, buf, count)) return -EFAULT;
+	return ret = sys_read_keyboard(buf, count);
 }

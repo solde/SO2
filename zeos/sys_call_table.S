@@ -2,7 +2,7 @@
 #include <segment.h>
 
 ENTRY (sys_call_table)
-	.long sys_ni_syscall    // 0
+	.long sys_read		    // 0
 	.long sys_exit          // 1
 	.long sys_fork          // 2
 	.long sys_ni_syscall    // 3
@@ -12,7 +12,7 @@ ENTRY (sys_call_table)
 	.long sys_ni_syscall    // 7
 	.long sys_ni_syscall    // 8
 	.long sys_ni_syscall    // 9
-	.long gettime		// 10
+	.long gettime			// 10
 	.long sys_ni_syscall    // 11
 	.long sys_ni_syscall    // 12
 	.long sys_ni_syscall    // 13

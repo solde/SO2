@@ -187,6 +187,12 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest){
 
 }
 
+void block_read_process(struct task_struct *t, struct list_head *dest){
+	if(dest != NULL && t != idle_task){
+		list_add(&t->list, dest);
+	}
+}
+
 void sched_next_rr() {
 
 	if(list_empty(&readyqueue)){

@@ -132,8 +132,4 @@ int list_empty(const struct list_head *head);
 #define list_first(head)                \
          (head)->next
 
-
-
-
-
 #endif /* _LINUX_LIST_H */

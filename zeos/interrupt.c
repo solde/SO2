@@ -114,12 +114,12 @@ task_switch(u);
 
 
 void printchar(){ //DONE
-char out='C';
-unsigned char c=inb(0x60);
+ char out='C';
+ unsigned char c=inb(0x60);
  int tmp = c & 0x80;
  int tmpm= c & 0x7f;
  if(tmp==0){
-	//  	printk("works");
+	printk("works");
  	char fin=char_map[tmpm];
   cb_write(&keyboard_buffer, fin);
  }

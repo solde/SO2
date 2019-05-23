@@ -30,9 +30,10 @@ struct list_head readqueue;
 
 int check_fd(int fd, int permissions)
 {
-  if (fd!=1) return 9; /*EBADF*/
-  if (permissions!=ESCRIPTURA) return 13; /*EACCES*/
-  return 0;
+  if (fd != 1 && fd != 0) return -EBADF;
+  if (fd == 1 && permissions!=ESCRIPTURA) return -EACCES;
+  if (fd == 0 && permissions!=LECTURA) return -EACCES;
+return 0;
 }
 
 int sys_ni_syscall()
@@ -383,7 +384,8 @@ int sys_read_keyboard(char * buf, int counter){
 
 int sys_read(int fd, char *buf, int count){
 	int fd_error = check_fd(fd, LECTURA);
-	if(fd_error != 0) return fd_error;
+	if(fd_error != 0) return -fd_error;
+//  if(buf==NULL) return -EFAULT;
 	if(!access_ok(VERIFY_READ, buf, count)) return -EFAULT;
 	return sys_read_keyboard(buf, count);
 }

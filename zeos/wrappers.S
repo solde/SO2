@@ -385,17 +385,19 @@ ENTRY(read)  //read sysenter
   push %ebp
   movl %esp, %ebp
   push %ebx
+  push %ecx // save ecx
+  push %edx // save edx
+  
   movl 8(%ebp), %ebx
   movl 12(%ebp), %ecx
   movl 16(%ebp), %edx
 
-  push %ecx // save ecx
-  push %edx // save edx
+
   lea retRead, %esi // return user
   push %esi
   push %ebp // fake dynamic link
   movl %esp, %ebp
-  movl $4, %eax
+  movl $0, %eax
   sysenter
 retRead:
   popl %ebp

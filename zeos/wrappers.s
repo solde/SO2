@@ -369,17 +369,19 @@ retF:
   push %ebp
   movl %esp, %ebp
   push %ebx
+  push %ecx
+  push %edx
+
   movl 8(%ebp), %ebx
   movl 12(%ebp), %ecx
   movl 16(%ebp), %edx
 
-  push %ecx
-  push %edx
+
   lea retRead, %esi
   push %esi
   push %ebp
   movl %esp, %ebp
-  movl $4, %eax
+  movl $0, %eax
   sysenter
 retRead:
   popl %ebp

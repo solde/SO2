@@ -10,11 +10,11 @@ ENTRY(write)   //write int
  movl 16(%ebp),%edx
  movl $0x4, %eax
  int $0x80
- cmp $0, %eax 
+ cmp $0, %eax
  jge safe
  lea errno, %ebx
  mov %eax, (%ebx)
- mov $-1, %eax 
+ mov $-1, %eax
  jmp skip
 safe:
  movl $0x00,%eax
@@ -27,11 +27,11 @@ skip:
 ENTRY(write)  //write sysenter
   push %ebp
   movl %esp, %ebp
-  push %ebx  
-  movl 8(%ebp), %ebx    
-  movl 12(%ebp), %ecx  
+  push %ebx
+  movl 8(%ebp), %ebx
+  movl 12(%ebp), %ecx
   movl 16(%ebp), %edx
-  
+
   push %ecx // save ecx
   push %edx // save edx
   lea ret, %esi // return user
@@ -40,22 +40,22 @@ ENTRY(write)  //write sysenter
   movl %esp, %ebp
   movl $4, %eax
   sysenter
- ret: 
+ ret:
   popl %ebp
   popl %esi
   popl %edx
   popl %ecx
   popl %ebx
- 
-  cmp $0, %eax 
+
+  cmp $0, %eax
   jge skip2
   leal errno, %ebx
-  negl %eax //negar errror 
+  negl %eax //negar errror
   movl %eax, (%ebx)
-  movl $-1, %eax 
+  movl $-1, %eax
   jmp end
  skip2:
-  movl 16(%ebp), %eax 
+  movl 16(%ebp), %eax
  end:
   movl %ebp, %esp
   popl %ebp
@@ -69,11 +69,11 @@ ENTRY(gettime)
   push %edx
   lea retC, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $10, %eax
   sysenter
- retC: 
+ retC:
   popl %ebp
   popl %esi
   popl %edx
@@ -90,11 +90,11 @@ ENTRY(getpid)
   push %edx
   lea retP, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $20, %eax
   sysenter
- retP: 
+ retP:
   popl %ebp
   popl %esi
   popl %edx
@@ -111,7 +111,7 @@ ENTRY(fork)
   push %edx
   lea retF, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $2, %eax
   sysenter
@@ -121,12 +121,12 @@ retF:
   popl %edx
   popl %ecx
 
-  cmp $0, %eax 
+  cmp $0, %eax
   jge endF
   leal errno, %ebx
-  negl %eax //negar errror 
+  negl %eax //negar errror
   movl %eax, (%ebx)
-  movl $-1, %eax 
+  movl $-1, %eax
  endF:
   movl %ebp, %esp
   popl %ebp
@@ -140,11 +140,11 @@ ENTRY(exit)
   push %edx
   lea retE, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $1, %eax
   sysenter
- retE: 
+ retE:
   popl %ebp
   popl %esi
   popl %edx
@@ -161,27 +161,27 @@ ENTRY(get_stats)
   push %edx
   push %ebx
 
-  mov 12(%ebp), %ecx 
+  mov 12(%ebp), %ecx
   mov 8(%ebp), %ebx
   lea retS, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $35, %eax
   sysenter
- retS: 
+ retS:
   popl %ebp
   popl %esi
   popl %ebx
   popl %edx
   popl %ecx
- 
-  cmp $0, %eax 
+
+  cmp $0, %eax
   jge skip4
   leal errno, %ebx
-  negl %eax //negar errror 
+  negl %eax //negar errror
   movl %eax, (%ebx)
-  movl $-1, %eax 
+  movl $-1, %eax
  skip4:
   movl %ebp, %esp
   popl %ebp
@@ -194,27 +194,27 @@ ENTRY(clone)
   push %edx
   push %ebx
 
-  mov 12(%ebp), %ecx 
+  mov 12(%ebp), %ecx
   mov 8(%ebp), %ebx
   lea ret10, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $19, %eax
   sysenter
- ret10: 
+ ret10:
   popl %ebp
   popl %esi
   popl %ebx
   popl %edx
   popl %ecx
- 
-  cmp $0, %eax 
+
+  cmp $0, %eax
   jge skip10
   leal errno, %ebx
-  negl %eax //negar errror 
+  negl %eax //negar errror
   movl %eax, (%ebx)
-  movl $-1, %eax 
+  movl $-1, %eax
  skip10:
   movl %ebp, %esp
   popl %ebp
@@ -231,19 +231,19 @@ ENTRY(sem_init)
   mov 8(%ebp), %ebx // n_sem
   lea reti, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $21, %eax
   sysenter
- reti: 
+ reti:
   popl %ebp
- 
-  cmp $0, %eax 
+
+  cmp $0, %eax
   jge skipi
   leal errno, %ebx
-  negl %eax //negar errror 
+  negl %eax //negar errror
   movl %eax, (%ebx)
-  movl $-1, %eax 
+  movl $-1, %eax
  skipi:
   popl %esi
   popl %ebx
@@ -263,18 +263,18 @@ ENTRY(sem_wait)
   mov 8(%ebp), %ebx // n_sem
   lea retw, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $22, %eax
   sysenter
- retw: 
-  popl %ebp 
-  cmp $0, %eax 
+ retw:
+  popl %ebp
+  cmp $0, %eax
   jge skipw
   leal errno, %ebx
-  negl %eax //negar errror 
+  negl %eax //negar errror
   movl %eax, (%ebx)
-  movl $-1, %eax 
+  movl $-1, %eax
  skipw:
   popl %esi
   popl %ebx
@@ -294,20 +294,20 @@ ENTRY(sem_signal)
   mov 8(%ebp), %ebx // n_sem
   lea rets, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $23, %eax
   sysenter
- rets: 
+ rets:
   popl %ebp
 
- 
-  cmp $0, %eax 
+
+  cmp $0, %eax
   jge skips
   leal errno, %ebx
-  negl %eax //negar errror 
+  negl %eax //negar errror
   movl %eax, (%ebx)
-  movl $-1, %eax 
+  movl $-1, %eax
  skips:
   popl %esi
   popl %ebx
@@ -327,23 +327,23 @@ ENTRY(sem_signal)
   mov 8(%ebp), %ebx // n_sem
   lea retd, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $24, %eax
   sysenter
- retd: 
+ retd:
   popl %ebp
   popl %esi
   popl %ebx
   popl %edx
   popl %ecx
- 
-  cmp $0, %eax 
+
+  cmp $0, %eax
   jge skipd
   leal errno, %ebx
-  negl %eax //negar errror 
+  negl %eax //negar errror
   movl %eax, (%ebx)
-  movl $-1, %eax  
+  movl $-1, %eax
  skipd:
   movl %ebp, %esp
   popl %ebp
@@ -359,24 +359,61 @@ ENTRY(sbrk)
   mov 8(%ebp), %ebx // n_sem
   lea retsb, %esi
   push %esi
-  push %ebp 
+  push %ebp
   movl %esp, %ebp
   movl $45, %eax
   sysenter
- retsb: 
+ retsb:
   popl %ebp
   popl %esi
   popl %ebx
   popl %edx
   popl %ecx
- 
-  cmp $0, %eax 
+
+  cmp $0, %eax
   jge skipsb
   leal errno, %ebx
-  negl %eax //negar errror 
+  negl %eax //negar errror
   movl %eax, (%ebx)
-  movl $-1, %eax  
+  movl $-1, %eax
  skipsb:
+  movl %ebp, %esp
+  popl %ebp
+  ret
+
+ENTRY(read)  //read sysenter
+  push %ebp
+  movl %esp, %ebp
+  push %ebx
+  movl 8(%ebp), %ebx
+  movl 12(%ebp), %ecx
+  movl 16(%ebp), %edx
+
+  push %ecx // save ecx
+  push %edx // save edx
+  lea retRead, %esi // return user
+  push %esi
+  push %ebp // fake dynamic link
+  movl %esp, %ebp
+  movl $4, %eax
+  sysenter
+retRead:
+  popl %ebp
+  popl %esi
+  popl %edx
+  popl %ecx
+  popl %ebx
+
+  cmp $0, %eax
+  jge skipRead
+  leal errno, %ebx
+  negl %eax //negar errror
+  movl %eax, (%ebx)
+  movl $-1, %eax
+  jmp endRead
+skipRead:
+  movl 16(%ebp), %eax
+endRead:
   movl %ebp, %esp
   popl %ebp
   ret

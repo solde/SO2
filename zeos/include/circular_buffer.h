@@ -10,8 +10,8 @@ struct circular_buffer{
 };
 
 void init_circular_buffer(struct circular_buffer* cb);
-void cb_is_empty(struct circular_buffer* cb);
-void cb_is_full(struct circular_buffer* cb);
+int cb_is_empty(struct circular_buffer* cb);
+int cb_is_full(struct circular_buffer* cb);
 int cb_size(struct circular_buffer *cb);
 
 int cb_write(struct circular_buffer *cb, char c);

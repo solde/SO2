@@ -2,8 +2,7 @@
 #include <segment.h>
 
 ENTRY (sys_call_table)
-	//.long sys_read		    // 0
-	.long sys_ni_syscall 
+	.long sys_read		   		// 0
 	.long sys_exit          // 1
 	.long sys_fork          // 2
 	.long sys_ni_syscall    // 3
@@ -13,7 +12,7 @@ ENTRY (sys_call_table)
 	.long sys_ni_syscall    // 7
 	.long sys_ni_syscall    // 8
 	.long sys_ni_syscall    // 9
-	.long gettime			// 10
+	.long gettime						// 10
 	.long sys_ni_syscall    // 11
 	.long sys_ni_syscall    // 12
 	.long sys_ni_syscall    // 13
@@ -25,7 +24,7 @@ ENTRY (sys_call_table)
 	.long sys_clone         // 19
 	.long sys_getpid        // 20
 	.long sys_sem_init    	// 21
-	.long sys_sem_wait   	// 22
+	.long sys_sem_wait   		// 22
 	.long sys_sem_signal    // 23
 	.long sys_sem_destroy   // 24
 	.long sys_ni_syscall    // 25
@@ -48,7 +47,7 @@ ENTRY (sys_call_table)
 	.long sys_ni_syscall    // 42
 	.long sys_ni_syscall    // 43
 	.long sys_ni_syscall    // 44
-	.long sys_sbrk		    // 45
+	.long sys_sbrk		    	// 45
 
     .globl MAX_SYSCALL
     MAX_SYSCALL = (. - sys_call_table)/

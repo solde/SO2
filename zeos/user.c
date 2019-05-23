@@ -22,9 +22,3 @@ int __attribute__ ((__section__(".text.main")))
 
   return 0;
 }
-/*
-12
-13
-14
-16
-*/

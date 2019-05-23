@@ -21,7 +21,9 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL);
 void setIdt();
 void printtest();
 void clock_int();
-void  printchar();
+void printchar();
+
+void init_keyboard_buffer();
 
 
 #endif  /* __INTERRUPT_H__ */

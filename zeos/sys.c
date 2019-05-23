@@ -12,10 +12,12 @@
 #include <mm_address.h>
 
 #include <sched.h>
-
+#include <interrupt.h>
 #include <myerror.h>
 #include <system.h>
 #include <entry.h>
+
+#include <circular_buffer.h>
 
 #define USELESS 0
 #define LECTURA 0
@@ -40,7 +42,7 @@ int sys_ni_syscall()
 
 int sys_getpid()
 {
- 
+
 	return current()->PID;
 }
 
@@ -60,33 +62,15 @@ int sys_fork(){
 	union task_union *uact = (union task_union*) act;
 	copy_data(uact, unison, KERNEL_STACK_SIZE*sizeof(long));
 	allocate_DIR(son);
-	
+
 	page_table_entry * process_PT =  get_PT(son);
 	page_table_entry * process_APT =  get_PT(act);
-	for (int i = 0; i < NUM_PAG_CODE; i++) 
+	for (int i = 0; i < NUM_PAG_CODE; i++)
 		set_ss_pag(process_PT, PAG_LOG_INIT_CODE + i, get_frame(process_APT, PAG_LOG_INIT_CODE+i));
 	for (int i = 0; i < NUM_PAG_KERNEL; i++)
 		set_ss_pag(process_PT, i, get_frame(process_APT, i));
-/*
-	int tmp[NUM_PAG_DATA];
-	for(int i=0;i<NUM_PAG_DATA;i++){
-		tmp[i]=alloc_frame();
-		if(tmp[i]<0){
-			for(int j=0;j<i;j++){ free_frame(tmp[j]);} //marcar com lliures els frames que habia marcat alloc
-			list_add_tail(e, &freequeue);
-			return -ENOMEM;
-		}
-	}	
 
-	int page= PAG_LOG_INIT_DATA + NUM_PAG_DATA; 
-	for(int k=0;k<NUM_PAG_DATA;k++){
-		set_ss_pag(process_PT, PAG_LOG_INIT_DATA + k, tmp[k]);
-		set_ss_pag(process_APT, page + k, tmp[k]); // assignació temporal
-		copy_data((void*)((PAG_LOG_INIT_DATA + k)*PAGE_SIZE), (void*)((page+k)*PAGE_SIZE), PAGE_SIZE); //copiar les pagines del pare
-		del_ss_pag(process_APT, page + k); //bye bye assignacio temp
-		set_cr3(act->dir_pages_baseAddr); //flush tlb
-	}*/
-		int numFrames = NUM_PAG_DATA + curr_heap_pages();
+	int numFrames = NUM_PAG_DATA + curr_heap_pages();
  	int frames[numFrames];
 	for (int i = 0; i < numFrames; i++) {
 
@@ -98,9 +82,9 @@ int sys_fork(){
 		}
 	}
 	for (int i = 0; i < numFrames; i++) {
-		set_ss_pag(process_PT, PAG_LOG_INIT_DATA + i, frames[i]); 
+		set_ss_pag(process_PT, PAG_LOG_INIT_DATA + i, frames[i]);
 		set_ss_pag(process_APT,INIT_HEAP + curr_heap_pages() + i, frames[i]);
-		copy_data((void*)((PAG_LOG_INIT_DATA + i)*PAGE_SIZE), (void*)((INIT_HEAP+curr_heap_pages()+i)*PAGE_SIZE), PAGE_SIZE); 
+		copy_data((void*)((PAG_LOG_INIT_DATA + i)*PAGE_SIZE), (void*)((INIT_HEAP+curr_heap_pages()+i)*PAGE_SIZE), PAGE_SIZE);
 		del_ss_pag(process_APT, INIT_HEAP + curr_heap_pages() + i);
 	}
 	set_cr3(act->dir_pages_baseAddr);
@@ -120,7 +104,7 @@ int sys_fork(){
 }
 
 
-int gettime(){ 
+int gettime(){
 return zeos_ticks;
 }
 
@@ -147,7 +131,7 @@ int sys_write(int fd,char *buffer,int size){
 	int resta = size - acum;
 	copy_from_user(buffer+acum, tmpbuf, resta);
 	num= sys_write_console(tmpbuf, resta);
- } 
+ }
  return 0;
 }
 
@@ -159,7 +143,7 @@ struct task_struct *get_task_PID(int pid) {
 }
 
 int sys_get_stats(int pid, struct stats* st) {
-	
+
 	if(pid<0) return -EINVAL;//-PID
 	if(st==NULL) return -EFAULT; //st null
 	if(st<PH_USER_START) return -EFAULT; //st in kernel space
@@ -184,7 +168,7 @@ int sys_clone(void (*function), void *stack){
 	if (!access_ok(VERIFY_WRITE, stack, 1)) {//address stack correct
 		return -EFAULT;
 	}
-    
+
 	if (list_empty(&freequeue)) { //Si no hi han espais lliures
 		return -EAGAIN;
 	}
@@ -193,12 +177,12 @@ int sys_clone(void (*function), void *stack){
 	list_del(e);
 	struct task_struct * newt = list_entry( e, struct task_struct, list );
 
-	
+
 
 	union task_union *newt_u = (union task_union *) newt;
 	struct task_struct *curr_t = current();
 	union task_union *curr_u = (union task_union*) curr_t;
-	
+
 	copy_data(curr_u, newt_u, KERNEL_STACK_SIZE * sizeof(long));
 
 	newt_u->stack[KERNEL_STACK_SIZE - 2] = stack;
@@ -218,10 +202,10 @@ int sys_clone(void (*function), void *stack){
 
 	list_add_tail(&newt->list, &readyqueue);
 	newt->clone_pid=current()->PID;
-	return newt->PID;	
+	return newt->PID;
 }
 
-void sys_exit(){ 
+void sys_exit(){
 	//eliminació de sem associats
 	for (int i = 0; i < NR_SEMAPHORES; i++){
 		if (semaphores[i].owner == current()->PID)
@@ -233,20 +217,20 @@ void sys_exit(){
 		free_dirs[current()->dir_pos]--;
 	}
 	update_process_state_rr(current(), &freequeue);
-	
+
 	current()->PID=-1;
 
 	sched_next_rr();
 }
 struct semaphore *get_sem(int id) {
-	for (int i = 0; i < NR_SEMAPHORES; i++) 
+	for (int i = 0; i < NR_SEMAPHORES; i++)
 		if (semaphores[i].id == id && (semaphores[i].owner != -1))
 			return &semaphores[i];
 	return NULL;
 }
 
 struct semaphore *get_free_sem() {
-	for (int i = 0; i < NR_SEMAPHORES; i++) 
+	for (int i = 0; i < NR_SEMAPHORES; i++)
 		if (semaphores[i].owner == -1)
 			return &semaphores[i];
 	return NULL;
@@ -254,10 +238,10 @@ struct semaphore *get_free_sem() {
 
 int sys_sem_init(int id, unsigned int value){
 	if (get_sem(id) != NULL) return -EBUSY; // already used
-	
+
 	struct semaphore *s = get_free_sem();
 	if (s == NULL) return -1; // no free semaphores
-	
+
 	s->id = id;
 	s->value = value;
 	s->owner = current()->PID;
@@ -272,7 +256,7 @@ int sys_sem_wait(int id){
 	struct semaphore *s = get_sem(id);
 	if (s == NULL) return -EINVAL; // invalid sem
 	//if (s->owner == -1) return -1;
-	
+
 	if (s->value > 0) {
 		s->value--;
 	} else {
@@ -304,7 +288,7 @@ int sys_sem_signal(int id){
 int sys_sem_destroy(int id){
 	struct semaphore *s = get_sem(id);
 	if (s == NULL) return -EINVAL; // invalid sem
-	if (s->owner != current()->PID) return -EPERM; 
+	if (s->owner != current()->PID) return -EPERM;
 	while (!list_empty(&s->blockqueue)) {
 		printk("test");
 
@@ -323,13 +307,13 @@ int sys_sem_destroy(int id){
 
 
 void * sys_sbrk(int increment){
-	
+
 	int brkc = current()->brk;
 	if(brkc+increment>=MAX_HEAP) return -ENOMEM;
 	int unchanged = ff_page();
-	
+
 	current()->brk+=increment;
-	
+
 	if(current()->brk<0) current()->brk=0;
 	page_table_entry *pt=get_PT(current());
 
@@ -340,20 +324,20 @@ void * sys_sbrk(int increment){
 		diff = increment/PAGE_SIZE;
 		if(brkc-current()->brk < increment) ++diff;
 	}
-	
+
 	for (int i = 0; i <diff; ++i){
 		int heaps[diff];
-	
+
 		for(int i=0;i<diff;i++){
 			heaps[i] = alloc_frame();
 			if(heaps[i]<0) {
 				for(int j=0;j<i;j++){
 					free_frame(heaps[j]);
-				}	
+				}
 				return -ENOMEM;
 			}
 
-		} 
+		}
 
 		for( int k = 0; k < diff; k++){
 			set_ss_pag(pt,unchanged+k,heaps[k]);
@@ -367,10 +351,10 @@ void * sys_sbrk(int increment){
 	}
 	set_cr3(current()->dir_pages_baseAddr);
 
-	return INIT_HEAP*PAGE_SIZE+brkc; 
+	return INIT_HEAP*PAGE_SIZE+brkc;
 }
 
-/*int sys_read_keyboard(char * buf, int counter){
+int sys_read_keyboard(char * buf, int counter){
 	if(!list_empty(&keyboardqueue)){
 		update_process_state_rr(current(), &keyboardqueue);
 		sched_next_rr();
@@ -378,14 +362,14 @@ void * sys_sbrk(int increment){
 	char * aux = buf;
 	int r_counter = counter;
 	while(r_counter > 0){
-		if(cb_is_emtpy(&keyboard_buffer)){
+		if(cb_is_empty(&keyboard_buffer)){
 			block_read_process(current(), &keyboardqueue);
 			sched_next_rr();
 		}
 		int buflen = 8;
 		int buffer[buflen];
 		int i = 0;
-		while(i < buflen && !cb_is_emtpy(&keyboard_buffer) && r_counter > 0){
+		while(i < buflen && !cb_is_empty(&keyboard_buffer) && r_counter > 0){
 			cb_read(&keyboard_buffer, &buffer[i]);
 			r_counter--;
 			++i;
@@ -402,4 +386,4 @@ int sys_read(int fd, char *buf, int count){
 	if(fd_error != 0) return fd_error;
 	if(!access_ok(VERIFY_READ, buf, count)) return -EFAULT;
 	return sys_read_keyboard(buf, count);
-}*/
+}

@@ -11,10 +11,12 @@
 #include <zeos_interrupt.h>
 #include <sched.h>
 
+#include <circular_buffer.h>
+
 Gate idt[IDT_ENTRIES];
 Register    idtR;
 
-extern struct circular_buffer keyboard_buffer;
+struct circular_buffer keyboard_buffer;
 
 
 char char_map[] =
@@ -84,7 +86,7 @@ void setIdt()
   /* Program interrups/exception service routines */
   idtR.base  = (DWord)idt;
   idtR.limit = IDT_ENTRIES * sizeof(Gate) - 1;
-  
+
   set_handlers();
   setInterruptHandler(33, keyboard_handler, 0);
   setInterruptHandler(32, clock_handler, 0);
@@ -93,7 +95,7 @@ void setIdt()
   writeMSR(0x174, __KERNEL_CS);
   writeMSR(0x175, INITIAL_ESP);
   writeMSR(0x176, syscall_handler_sysenter);
-  
+
   set_idt_reg(&idtR);
 }
 
@@ -110,28 +112,18 @@ task_switch(u);
 
 }
 
-void read_char_from_keyboard(){
-	char defaultChar = 'C';	
-	unsigned char c=inb(0x60);
-	int tmp = c & 0x80;
-	int tmpm= c & 0x7f;
-	if(tmp == 0){
-		
-	}
-}
 
 void printchar(){ //DONE
 char out='C';
 unsigned char c=inb(0x60);
  int tmp = c & 0x80;
  int tmpm= c & 0x7f;
- if(tmp==0){ 
-	//  	printk("works");									
+ if(tmp==0){
+	//  	printk("works");
  	char fin=char_map[tmpm];
- 	if(fin!='\0') printc_xy(10,20,fin);
-	else          printc_xy(10,20,out);	 	
+  cb_write(&keyboard_buffer, fin);
  }
-		 
+
 }
 
 void clock_int(){
@@ -141,5 +133,5 @@ void clock_int(){
 }
 
 void init_keyboard_buffer(){
-  
+  init_circular_buffer(&keyboard_buffer);
 }

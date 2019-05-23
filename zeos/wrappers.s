@@ -364,3 +364,40 @@ retF:
   movl %ebp, %esp
   popl %ebp
   ret
+
+.globl read; .type read, @function; .align 0; read:
+  push %ebp
+  movl %esp, %ebp
+  push %ebx
+  movl 8(%ebp), %ebx
+  movl 12(%ebp), %ecx
+  movl 16(%ebp), %edx
+
+  push %ecx
+  push %edx
+  lea retRead, %esi
+  push %esi
+  push %ebp
+  movl %esp, %ebp
+  movl $4, %eax
+  sysenter
+retRead:
+  popl %ebp
+  popl %esi
+  popl %edx
+  popl %ecx
+  popl %ebx
+
+  cmp $0, %eax
+  jge skipRead
+  leal errno, %ebx
+  negl %eax
+  movl %eax, (%ebx)
+  movl $-1, %eax
+  jmp endRead
+skipRead:
+  movl 16(%ebp), %eax
+endRead:
+  movl %ebp, %esp
+  popl %ebp
+  ret

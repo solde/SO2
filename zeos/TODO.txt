@@ -1,0 +1,4 @@
+interrupt.c
+TOT very sad :(((
+
+bucle infinit sys_sem_destory

@@ -1,0 +1,61 @@
+Binary file sys.o matches
+sched.c:	return t->dir_pages_baseAddr;
+sched.c:	return (page_table_entry *)(((unsigned int)(t->dir_pages_baseAddr->bits.pbase_addr))<<12);
+sched.c:	pos = ((int)t-(int)task)/sizeof(union task_union);
+sched.c:	t->dir_pages_baseAddr = (page_table_entry*) &dir_pages[pos]; 
+sched.c:		t->quantum = DEFAULT_QUANTUM;
+sched.c:		t->PID = i+2;
+sched.c:		t->state = -1;
+sched.c:		list_add_tail( &t->list, &freequeue );
+sched.c:	t->quantum = DEFAULT_QUANTUM;
+sched.c:	return t->quantum;
+sched.c:	if(t->state != ST_RUN){
+sched.c:		list_del(&t->list);
+sched.c:		list_add_tail(&t->list, dest);
+sched.c:		t->state = ST_READY;
+sched.c:		t->state = 1;
+sched.c:		t->state = ST_RUN;
+sched.c:	t->state = ST_READY;
+.gdbcmd:define print-stack
+Makefile:HOSTCFLAGS = -Wall -Wstrict-prototypes -g
+Makefile:CFLAGS = -O2  -g $(JP) -fno-omit-frame-pointer -ffreestanding -Wall -I$(INCLUDEDIR)
+Makefile:	gcc -m32 -g -fno-omit-frame-pointer -ffreestanding -Wall -Iinclude   -c -o user.o user.c
+Binary file hardware.o matches
+Binary file sched.o matches
+Binary file mm.o matches
+Makefile2:HOSTCFLAGS = -Wall -Wstrict-prototypes -g
+Makefile2:CFLAGS = -O2  -g $(JP) -fno-omit-frame-pointer -ffreestanding -Wall -I$(INCLUDEDIR)
+bootsect.s:# 1 "<built-in>"
+bootsect.s:BOOTSEG   = 0x07C0		! original address of boot-sector
+bootsect.s:INITSEG   = 0x9000		! final address of boot-sector
+bootsect.s:! things as simple as possible, we do no register set-up or anything,
+Binary file libzeos.a matches
+Binary file .vscode/ipch/181ce414384237ce/system.ipch matches
+Binary file .vscode/ipch/137aae52d177be50/sched.ipch matches
+Binary file .vscode/ipch/989685a47da43038/interrupt.ipch matches
+Binary file .vscode/ipch/dd5e742e8d2ae2d6/sys.ipch matches
+Binary file system.o matches
+entry.s:# 1 "<built-in>"
+sys.c:    set_cr3(current_task_struct->dir_pages_baseAddr);
+sys.c:  new_task_struct->PID = NEXT_PID;
+sys.c:  list_add_tail(&new_task_struct->list, &readyqueue);
+sys.c:  return new_task_struct->PID;
+sys.c:  t->stats.user_ticks = 500;
+sys.c:  copy_to_user(&t->s, st, sizeof(struct stats));
+include/list.h: *   realelement->a = 0x666;
+Binary file interrupt.o matches
+Binary file io.o matches
+.gdbcmd.template:define print-stack
+Binary file libauxjp.a matches
+list.c:	list->next = list;
+list.c:	list->prev = list;
+list.c:	next->prev = new;
+list.c:	next->prev = prev;
+list.c:	return list->next == head;
+bootsect.S:BOOTSEG   = 0x07C0		! original address of boot-sector
+bootsect.S:INITSEG   = 0x9000		! final address of boot-sector
+bootsect.S:! things as simple as possible, we do no register set-up or anything,
+sys_call_table.s:# 1 "<built-in>"
+Binary file utils.o matches
+Binary file devices.o matches
+Binary file list.o matches

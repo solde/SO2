@@ -46,7 +46,7 @@
  .long sys_ni_syscall
  .long sys_ni_syscall
  .long sys_ni_syscall
- .long sys_ni_syscall
+ .long sys_get_stats
  .long sys_ni_syscall
  .long sys_ni_syscall
  .long sys_ni_syscall

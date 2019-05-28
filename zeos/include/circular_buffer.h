@@ -1,10 +1,10 @@
 #ifndef __ZEOS_CIRCULAR_BUFFER_H__
 #define __ZEOS_CIRCULAR_BUFFER_H__
 
-#define MAX_SIZE 8
+#define MAX_CB_SIZE 8
 
 struct circular_buffer{
-	char info[MAX_SIZE];
+	char info[MAX_CB_SIZE];
 	char begin, end;
 	char full;
 };

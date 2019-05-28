@@ -16,8 +16,15 @@ void test(){
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
-  runjp();
-
+  runjp_rank(7, 7);
+  //runjp();
+  //runjp_rank(8,10);
+/*
+  char c[4];
+  read(0, c, 4);
+  write(1, "test", 4);
+  write(1, c, 4);
+*/
   while(1);
 
   return 0;

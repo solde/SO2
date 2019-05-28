@@ -58,7 +58,6 @@ void cpu_idle(void)
 
 	while(1)
 	{
-	//printk("Hey...");
 	;
 	}
 }
@@ -182,11 +181,16 @@ void update_sched_data_rr() {
 }
 
 void update_process_state_rr(struct task_struct *t, struct list_head *dest){
-
 	if(current()->PID!=t->PID) list_del(&t->list);
-	if(dest!=NULL) list_add_tail(&t->list, dest); //evitamos errores.
+	if(dest!=NULL && t->PID != 0) list_add_tail(&t->list, dest); //evitamos errores.
 	if(dest==NULL) t->pstats.total_trans++;
 
+}
+
+void update_process_state_front(struct task_struct *t, struct list_head *dest){
+	if(current()->PID!=t->PID) list_del(&t->list);
+	if(dest!=NULL && t->PID != 0) list_add(&t->list, dest); //evitamos errores.
+	if(dest==NULL) t->pstats.total_trans++;
 }
 
 void sched_next_rr() {
@@ -206,10 +210,8 @@ void controler(){
 	update_sched_data_rr(); //cada tick s'actualitza time
 	int ret=needs_sched_rr();
 	if(ret==1){
-		if(current()->PID!=0){
-			update_process_state_rr(current(),&readyqueue);
-			sched_next_rr();
-		}
+		update_process_state_rr(current(),&readyqueue);
+		sched_next_rr();
 	}
 }
 

@@ -1,14 +1,30 @@
-# 1 "wrappers.S"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 31 "<command-line>"
-# 1 "/usr/include/stdc-predef.h" 1 3 4
-# 32 "<command-line>" 2
-# 1 "wrappers.S"
-# 1 "include/asm.h" 1
-# 2 "wrappers.S" 2
-# 27 "wrappers.S"
-.globl write; .type write, @function; .align 0; write:
+#include <asm.h>
+
+/*
+ENTRY(write)   //write int
+
+ push %ebp
+ movl %esp,%ebp
+ movl 8(%ebp),%ebx
+ movl 12(%ebp),%ecx
+ movl 16(%ebp),%edx
+ movl $0x4, %eax
+ int $0x80
+ cmp $0, %eax
+ jge safe
+ lea errno, %ebx
+ mov %eax, (%ebx)
+ mov $-1, %eax
+ jmp skip
+safe:
+ movl $0x00,%eax
+skip:
+ mov %ebp,%esp
+ popl %ebp
+ ret
+ */
+
+ENTRY(write)  //write sysenter
   push %ebp
   movl %esp, %ebp
   push %ebx
@@ -16,11 +32,11 @@
   movl 12(%ebp), %ecx
   movl 16(%ebp), %edx
 
-  push %ecx
-  push %edx
-  lea ret, %esi
+  push %ecx // save ecx
+  push %edx // save edx
+  lea ret, %esi // return user
   push %esi
-  push %ebp
+  push %ebp // fake dynamic link
   movl %esp, %ebp
   movl $4, %eax
   sysenter
@@ -34,7 +50,7 @@
   cmp $0, %eax
   jge skip2
   leal errno, %ebx
-  negl %eax
+  negl %eax //negar errror
   movl %eax, (%ebx)
   movl $-1, %eax
   jmp end
@@ -46,7 +62,7 @@
   ret
 
 
-.globl gettime; .type gettime, @function; .align 0; gettime:
+ENTRY(gettime)
   push %ebp
   movl %esp, %ebp
   push %ecx
@@ -67,7 +83,7 @@
   popl %ebp
   ret
 
-.globl getpid; .type getpid, @function; .align 0; getpid:
+ENTRY(getpid)
   push %ebp
   movl %esp, %ebp
   push %ecx
@@ -88,7 +104,7 @@
   pop %ebp
   ret
 
-.globl fork; .type fork, @function; .align 0; fork:
+ENTRY(fork)
   push %ebp
   movl %esp, %ebp
   push %ecx
@@ -108,7 +124,7 @@ retF:
   cmp $0, %eax
   jge endF
   leal errno, %ebx
-  negl %eax
+  negl %eax //negar errror
   movl %eax, (%ebx)
   movl $-1, %eax
  endF:
@@ -117,7 +133,7 @@ retF:
   ret
 
 
-.globl exit; .type exit, @function; .align 0; exit:
+ENTRY(exit)
   push %ebp
   movl %esp, %ebp
   push %ecx
@@ -138,7 +154,7 @@ retF:
   pop %ebp
   ret
 
-.globl get_stats; .type get_stats, @function; .align 0; get_stats:
+ENTRY(get_stats)
   push %ebp
   movl %esp, %ebp
   push %ecx
@@ -163,7 +179,7 @@ retF:
   cmp $0, %eax
   jge skip4
   leal errno, %ebx
-  negl %eax
+  negl %eax //negar errror
   movl %eax, (%ebx)
   movl $-1, %eax
  skip4:
@@ -171,7 +187,7 @@ retF:
   popl %ebp
   ret
 
-.globl clone; .type clone, @function; .align 0; clone:
+ENTRY(clone)
   push %ebp
   movl %esp, %ebp
   push %ecx
@@ -196,7 +212,7 @@ retF:
   cmp $0, %eax
   jge skip10
   leal errno, %ebx
-  negl %eax
+  negl %eax //negar errror
   movl %eax, (%ebx)
   movl $-1, %eax
  skip10:
@@ -204,15 +220,15 @@ retF:
   popl %ebp
   ret
 
-.globl sem_init; .type sem_init, @function; .align 0; sem_init:
+ENTRY(sem_init)
   push %ebp
   movl %esp, %ebp
   push %ecx
   push %edx
   push %ebx
 
-  mov 12(%ebp), %ecx
-  mov 8(%ebp), %ebx
+  mov 12(%ebp), %ecx // value
+  mov 8(%ebp), %ebx // n_sem
   lea reti, %esi
   push %esi
   push %ebp
@@ -225,7 +241,7 @@ retF:
   cmp $0, %eax
   jge skipi
   leal errno, %ebx
-  negl %eax
+  negl %eax //negar errror
   movl %eax, (%ebx)
   movl $-1, %eax
  skipi:
@@ -237,14 +253,14 @@ retF:
   popl %ebp
   ret
 
-.globl sem_wait; .type sem_wait, @function; .align 0; sem_wait:
+ENTRY(sem_wait)
   push %ebp
   movl %esp, %ebp
   push %ecx
   push %edx
   push %ebx
 
-  mov 8(%ebp), %ebx
+  mov 8(%ebp), %ebx // n_sem
   lea retw, %esi
   push %esi
   push %ebp
@@ -256,7 +272,7 @@ retF:
   cmp $0, %eax
   jge skipw
   leal errno, %ebx
-  negl %eax
+  negl %eax //negar errror
   movl %eax, (%ebx)
   movl $-1, %eax
  skipw:
@@ -268,14 +284,14 @@ retF:
   popl %ebp
   ret
 
-.globl sem_signal; .type sem_signal, @function; .align 0; sem_signal:
+ENTRY(sem_signal)
   push %ebp
   movl %esp, %ebp
   push %ecx
   push %edx
   push %ebx
 
-  mov 8(%ebp), %ebx
+  mov 8(%ebp), %ebx // n_sem
   lea rets, %esi
   push %esi
   push %ebp
@@ -289,7 +305,7 @@ retF:
   cmp $0, %eax
   jge skips
   leal errno, %ebx
-  negl %eax
+  negl %eax //negar errror
   movl %eax, (%ebx)
   movl $-1, %eax
  skips:
@@ -301,14 +317,14 @@ retF:
   popl %ebp
   ret
 
-  .globl sem_destroy; .type sem_destroy, @function; .align 0; sem_destroy:
+  ENTRY(sem_destroy)
   push %ebp
   movl %esp, %ebp
   push %ecx
   push %edx
   push %ebx
 
-  mov 8(%ebp), %ebx
+  mov 8(%ebp), %ebx // n_sem
   lea retd, %esi
   push %esi
   push %ebp
@@ -325,7 +341,7 @@ retF:
   cmp $0, %eax
   jge skipd
   leal errno, %ebx
-  negl %eax
+  negl %eax //negar errror
   movl %eax, (%ebx)
   movl $-1, %eax
  skipd:
@@ -333,14 +349,14 @@ retF:
   popl %ebp
   ret
 
-.globl sbrk; .type sbrk, @function; .align 0; sbrk:
+ENTRY(sbrk)
   push %ebp
   movl %esp, %ebp
   push %ecx
   push %edx
   push %ebx
 
-  mov 8(%ebp), %ebx
+  mov 8(%ebp), %ebx // n_sem
   lea retsb, %esi
   push %esi
   push %ebp
@@ -357,7 +373,7 @@ retF:
   cmp $0, %eax
   jge skipsb
   leal errno, %ebx
-  negl %eax
+  negl %eax //negar errror
   movl %eax, (%ebx)
   movl $-1, %eax
  skipsb:
@@ -365,21 +381,21 @@ retF:
   popl %ebp
   ret
 
-.globl read; .type read, @function; .align 0; read:
+ENTRY(read)  //read sysenter
   push %ebp
   movl %esp, %ebp
   push %ebx
-  push %ecx
-  push %edx
-
+  push %ecx // save ecx
+  push %edx // save edx
+  
   movl 8(%ebp), %ebx
   movl 12(%ebp), %ecx
   movl 16(%ebp), %edx
 
 
-  lea retRead, %esi
+  lea retRead, %esi // return user
   push %esi
-  push %ebp
+  push %ebp // fake dynamic link
   movl %esp, %ebp
   movl $0, %eax
   sysenter
@@ -393,7 +409,7 @@ retRead:
   cmp $0, %eax
   jge skipRead
   leal errno, %ebx
-  negl %eax
+  negl %eax //negar errror
   movl %eax, (%ebx)
   movl $-1, %eax
   jmp endRead

@@ -31,7 +31,7 @@
 00000000000i[      ]   SB16 support: no
 00000000000i[      ]   USB support: no
 00000000000i[      ]   VGA extension support: vbe
-00000000000i[MEM0  ] allocated memory at 0x7f900b50c010. after alignment, vector=0x7f900b50d000
+00000000000i[MEM0  ] allocated memory at 0x7f4d24d16010. after alignment, vector=0x7f4d24d17000
 00000000000i[MEM0  ] 16,00MB
 00000000000i[MEM0  ] mem block size = 0x00100000, blocks=16
 00000000000i[MEM0  ] rom at 0xfffe0000/131072 ('/opt/bochs_gdb/share/bochs/BIOS-bochs-latest')
@@ -41,7 +41,7 @@
 00000000000i[DEV   ] PIIX3 PCI-to-ISA bridge present at device 1, function 0
 00000000000i[PLUGIN] init_dev of 'cmos' plugin device by virtual method
 00000000000i[CMOS  ] Using local time for initial clock
-00000000000i[CMOS  ] Setting initial clock to: Thu May 23 11:31:29 2019 (time0=1558603889)
+00000000000i[CMOS  ] Setting initial clock to: Fri May 24 13:39:16 2019 (time0=1558697956)
 00000000000i[PLUGIN] init_dev of 'dma' plugin device by virtual method
 00000000000i[DMA   ] channel 4 used by cascade
 00000000000i[PLUGIN] init_dev of 'pic' plugin device by virtual method
@@ -128,6 +128,33 @@
 00000000000i[PLUGIN] reset of 'parallel' plugin device by virtual method
 00000000000i[PLUGIN] reset of 'serial' plugin device by virtual method
 00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[GDBST ] addr 000000000000fff0 len 1
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[GDBST ] addr 000000000000fff0 len 1
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[GDBST ] addr 000000000000ffc0 len 40
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[GDBST ] addr 000000000000fff0 len 8
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[GDBST ] addr 000000000000fff0 len 7
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
+00000000000i[XGUI  ] Mouse capture off
 00000004661i[BIOS  ] $Revision: 12412 $ $Date: 2014-07-10 09:28:59 +0200 (Do, 10. Jul 2014) $
 00000318049i[KBD   ] reset-disable command received
 00000320818i[BIOS  ] Starting rombios32
@@ -167,8 +194,8 @@
 00001529176i[BXVGA ] VBE known Display Interface b0c0
 00001529208i[BXVGA ] VBE known Display Interface b0c5
 00001532133i[VBIOS ] VBE Bios $Id: vbe.c,v 1.65 2014/07/08 18:02:25 vruppert Exp $
+00003563564i[XGUI  ] charmap update. Font Height is 16
 00014040191i[BIOS  ] Booting from 0000:7c00
-00021961352i[XGUI  ] charmap update. Font Height is 16
 00030533008i[FLOPPY] partial read() on floppy image returns 244/512
 00030577452i[FLOPPY] read() on floppy image returns 0
 00030621896i[FLOPPY] read() on floppy image returns 0
@@ -183,26 +210,26 @@
 00031023646i[FLOPPY] read() on floppy image returns 0
 00031068090i[FLOPPY] read() on floppy image returns 0
 00031112534i[FLOPPY] read() on floppy image returns 0
-01943117611p[      ] >>PANIC<< SIGNAL 2 caught
-01943117611i[CPU0  ] CPU is in protected mode (active)
-01943117611i[CPU0  ] CS.mode = 32 bit
-01943117611i[CPU0  ] SS.mode = 32 bit
-01943117611i[CPU0  ] EFER   = 0x00000000
-01943117611i[CPU0  ] | EAX=0001f010  EBX=00014ac0  ECX=00020000  EDX=0002a000
-01943117611i[CPU0  ] | ESP=0001fffc  EBP=0001fffc  ESI=0001f010  EDI=0001e000
-01943117611i[CPU0  ] | IOPL=0 id vip vif ac vm rf nt of df IF tf sf zf af pf cf
-01943117611i[CPU0  ] | SEG sltr(index|ti|rpl)     base    limit G D
-01943117611i[CPU0  ] |  CS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-01943117611i[CPU0  ] |  DS:0018( 0003| 0|  0) 00000000 ffffffff 1 1
-01943117611i[CPU0  ] |  SS:0018( 0003| 0|  0) 00000000 ffffffff 1 1
-01943117611i[CPU0  ] |  ES:0018( 0003| 0|  0) 00000000 ffffffff 1 1
-01943117611i[CPU0  ] |  FS:0000( 0000| 0|  0) 00000000 00000000 0 0
-01943117611i[CPU0  ] |  GS:0000( 0000| 0|  0) 00000000 00000000 0 0
-01943117611i[CPU0  ] | EIP=00010694 (00010694)
-01943117611i[CPU0  ] | CR0=0x80000011 CR2=0x00000000
-01943117611i[CPU0  ] | CR3=0x0002a000 CR4=0x00000000
-01943117611i[CPU0  ] 0x00010694>> jmp .-2 (0x00010694) : EBFE
-01943117611i[CMOS  ] Last time is 1558604374 (Thu May 23 11:39:34 2019)
-01943117611i[XGUI  ] Exit
-01943117611i[      ] restoring default signal behavior
-01943117611i[SIM   ] quit_sim called with exit code 1
+04001056260p[      ] >>PANIC<< SIGNAL 2 caught
+04001056260i[CPU0  ] CPU is in protected mode (active)
+04001056260i[CPU0  ] CS.mode = 32 bit
+04001056260i[CPU0  ] SS.mode = 32 bit
+04001056260i[CPU0  ] EFER   = 0x00000000
+04001056260i[CPU0  ] | EAX=00000000  EBX=00014c20  ECX=0000026f  EDX=00000033
+04001056260i[CPU0  ] | ESP=0001ffcc  EBP=0001ffdc  ESI=000156e0  EDI=0001e000
+04001056260i[CPU0  ] | IOPL=0 id vip vif ac vm rf nt of df IF tf sf zf AF PF cf
+04001056260i[CPU0  ] | SEG sltr(index|ti|rpl)     base    limit G D
+04001056260i[CPU0  ] |  CS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+04001056260i[CPU0  ] |  DS:0018( 0003| 0|  0) 00000000 ffffffff 1 1
+04001056260i[CPU0  ] |  SS:0018( 0003| 0|  0) 00000000 ffffffff 1 1
+04001056260i[CPU0  ] |  ES:0018( 0003| 0|  0) 00000000 ffffffff 1 1
+04001056260i[CPU0  ] |  FS:0000( 0000| 0|  0) 00000000 00000000 0 0
+04001056260i[CPU0  ] |  GS:0000( 0000| 0|  0) 00000000 00000000 0 0
+04001056260i[CPU0  ] | EIP=00010684 (0001067d)
+04001056260i[CPU0  ] | CR0=0x80000011 CR2=0x00000000
+04001056260i[CPU0  ] | CR3=0x0002a000 CR4=0x00000000
+04001056260i[CPU0  ] 0x0001067d>> movzx edi, byte ptr ds:[ebx-30] : 0FB6BBE2FFFFFF
+04001056260i[CMOS  ] Last time is 1558698956 (Fri May 24 13:55:56 2019)
+04001056260i[XGUI  ] Exit
+04001056260i[      ] restoring default signal behavior
+04001056260i[SIM   ] quit_sim called with exit code 1

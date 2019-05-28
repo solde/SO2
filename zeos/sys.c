@@ -109,12 +109,8 @@ int gettime(){
 return zeos_ticks;
 }
 
-
-
-
 #define tambuff 4
 int sys_write(int fd,char *buffer,int size){
-
  int num;
  int check;
  check= check_fd (fd,ESCRIPTURA);
@@ -150,7 +146,6 @@ int sys_get_stats(int pid, struct stats* st) {
 	if(st<PH_USER_START) return -EFAULT; //st in kernel space
 	if(st>= (PAG_LOG_INIT_DATA + NUM_PAG_DATA)*PAGE_SIZE) return -EFAULT; //st out of user space;
 	struct task_struct *t = get_task_PID (pid);
-	struct list_head * e;
 	current()->pstats.remaining_ticks=time;
 	if (t == NULL) return -ESRCH; // INVALID PID
 
@@ -355,37 +350,35 @@ void * sys_sbrk(int increment){
 	return INIT_HEAP*PAGE_SIZE+brkc;
 }
 
-int sys_read_keyboard(char * buf, int counter){
+int sys_read_keyboard(char *buf, int counter){
+	current()->read_count = counter;
 	if(!list_empty(&keyboardqueue)){
 		update_process_state_rr(current(), &keyboardqueue);
 		sched_next_rr();
 	}
-	char * aux = buf;
-	int r_counter = counter;
-	while(r_counter > 0){
+	char *aux = buf;
+	while(current()->read_count > 0){
 		if(cb_is_empty(&keyboard_buffer)){
-			block_read_process(current(), &keyboardqueue);
+			update_process_state_front(current(), &keyboardqueue);
 			sched_next_rr();
 		}
-		int buflen = 8;
-		int buffer[buflen];
+		char buffer[MAX_CB_SIZE];
+		for(int i = 0; i < MAX_CB_SIZE; ++i) buffer[i] = 0;
 		int i = 0;
-		while(i < buflen && !cb_is_empty(&keyboard_buffer) && r_counter > 0){
+		while(i < MAX_CB_SIZE && !cb_is_empty(&keyboard_buffer) && current()->read_count >= 0){
 			cb_read(&keyboard_buffer, &buffer[i]);
-			r_counter--;
+			current()->read_count--;
 			++i;
 		}
 		copy_to_user(buffer, aux, i);
-		++aux;
-
+		aux = &buf[i];
 	}
 	return counter;
 }
 
 int sys_read(int fd, char *buf, int count){
 	int fd_error = check_fd(fd, LECTURA);
-	if(fd_error != 0) return -fd_error;
-//  if(buf==NULL) return -EFAULT;
+	if(fd_error != 0) return fd_error;
 	if(!access_ok(VERIFY_READ, buf, count)) return -EFAULT;
 	return sys_read_keyboard(buf, count);
 }

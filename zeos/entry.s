@@ -1,53 +1,108 @@
-# 1 "entry.S"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 31 "<command-line>"
-# 1 "/usr/include/stdc-predef.h" 1 3 4
-# 32 "<command-line>" 2
-# 1 "entry.S"
+/*
+ * entry.S - Entry point to system mode from user mode
+ */
+
+#include <asm.h>
+#include <segment.h>
+#include <myerror.h>
 
 
+/**************************************************/
+/**** Save & Restore ******************************/
+/**                                              **/
+/** When we change to privilege level 0 (kernel) **/
+/** (through an interrupt, a system call, an     **/
+/** exception ...) we must save the state of the **/
+/** currently running task (save).               **/
+/**                                              **/
+/** Stack layout in 'systemCall':                **/
+/**                                              **/
+/**   0(%esp) - %ebx    \                        **/
+/**   4(%esp) - %ecx     |                       **/
+/**   8(%esp) - %edx     |                       **/
+/**   C(%esp) - %esi     | Register saved        **/
+/**  10(%esp) - %edi     |  by 'save'            **/
+/**  14(%esp) - %ebp     |                       **/
+/**  18(%esp) - %eax     |                       **/
+/**  1C(%esp) - %ds      |                       **/
+/**  20(%esp) - %es      |                       **/
+/**  24(%esp) - %fs      |                       **/
+/**  28(%esp) - %gs     /                        **/
+/**  2C(%esp) - %eip    \                        **/
+/**  30(%esp) - %cs      |                       **/
+/**  34(%esp) - %eflags  |  Return context saved **/
+/**  38(%esp) - %oldesp  |   by the processor.   **/
+/**  3C(%esp) - %oldss  /                        **/
+/**                                              **/
+/**************************************************/
+
+#define SAVE_ALL \
+      pushl %gs; \
+      pushl %fs; \
+      pushl %es; \
+      pushl %ds; \
+      pushl %eax; \
+      pushl %ebp; \
+      pushl %edi; \
+      pushl %esi; \
+      pushl %edx; \
+      pushl %ecx; \
+      pushl %ebx; \
+      movl $__KERNEL_DS, %edx;    \
+      movl %edx, %ds;           \
+      movl %edx, %es
 
 
-# 1 "include/asm.h" 1
-# 6 "entry.S" 2
-# 1 "include/segment.h" 1
-# 7 "entry.S" 2
-# 1 "include/myerror.h" 1
-# 8 "entry.S" 2
-# 74 "entry.S"
-.globl keyboard_handler; .type keyboard_handler, @function; .align 0; keyboard_handler:
-  pushl %gs; pushl %fs; pushl %es; pushl %ds; pushl %eax; pushl %ebp; pushl %edi; pushl %esi; pushl %edx; pushl %ecx; pushl %ebx; movl $0x18, %edx; movl %edx, %ds; movl %edx, %es
-  movb $0x20, %al; outb %al, $0x20 ;
+#define RESTORE_ALL \
+      popl %ebx; \
+      popl %ecx; \
+      popl %edx; \
+      popl %esi; \
+      popl %edi; \
+      popl %ebp; \
+      popl %eax; \
+      popl %ds; \
+      popl %es; \
+      popl %fs; \
+      popl %gs; 
+ 
+
+#define EOI      \
+movb $0x20, %al; \
+outb %al, $0x20 ;
+
+ENTRY(keyboard_handler)
+  SAVE_ALL
+  EOI
   call printchar
-  popl %ebx; popl %ecx; popl %edx; popl %esi; popl %edi; popl %ebp; popl %eax; popl %ds; popl %es; popl %fs; popl %gs;
+  RESTORE_ALL
   iret
 
 
-.globl clock_handler; .type clock_handler, @function; .align 0; clock_handler:
-  pushl %gs; pushl %fs; pushl %es; pushl %ds; pushl %eax; pushl %ebp; pushl %edi; pushl %esi; pushl %edx; pushl %ecx; pushl %ebx; movl $0x18, %edx; movl %edx, %ds; movl %edx, %es
-  movb $0x20, %al; outb %al, $0x20 ;
+ENTRY(clock_handler)
+  SAVE_ALL
+  EOI
   call clock_int
-  popl %ebx; popl %ecx; popl %edx; popl %esi; popl %edi; popl %ebp; popl %eax; popl %ds; popl %es; popl %fs; popl %gs;
+  RESTORE_ALL
   iret
 
-.globl write_call_handler; .type write_call_handler, @function; .align 0; write_call_handler:
+ENTRY(write_call_handler)
 
-  pushl %gs; pushl %fs; pushl %es; pushl %ds; pushl %eax; pushl %ebp; pushl %edi; pushl %esi; pushl %edx; pushl %ecx; pushl %ebx; movl $0x18, %edx; movl %edx, %ds; movl %edx, %es
-  cmpl $0, %EAX
-  jl err
-  cmpl $MAX_SYSCALL, %EAX
-  jg err
-  call *sys_call_table(, %EAX, 0x04)
-  jmp fin
+  SAVE_ALL                           // Save the current context
+  cmpl $0, %EAX                       // Is syscall number negative?
+  jl err                              //If it is, jump to return an error
+  cmpl $MAX_SYSCALL, %EAX             // Is syscall greater than MAX_SYSCALL (4)?
+  jg err                              //If it is, jump to return an error
+  call *sys_call_table(, %EAX, 0x04)  //Call the corresponding service routine
+  jmp fin             
 err:
-  movl $-38, %EAX
+  movl $-ENOSYS, %EAX                 // Move to EAX the ENOSYS error
 fin:
-  movl %EAX, 0x18(%esp)
-  popl %ebx; popl %ecx; popl %edx; popl %esi; popl %edi; popl %ebp; popl %eax; popl %ds; popl %es; popl %fs; popl %gs;
+  movl %EAX, 0x18(%esp)               // Change theEAXvaluein the stack
+  RESTORE_ALL
   iret
 
-.globl writeMSR; .type writeMSR, @function; .align 0; writeMSR:
+ENTRY(writeMSR)
  push %ebp
  movl %esp,%ebp
  movl 8(%ebp), %ecx
@@ -56,40 +111,40 @@ fin:
  pop %ebp
  ret
 
-.globl syscall_handler_sysenter; .type syscall_handler_sysenter, @function; .align 0; syscall_handler_sysenter:
-
-  push $0x2B
-  push %ebp
+ENTRY(syscall_handler_sysenter)
+	
+  push $__USER_DS
+  push %ebp	// User stack address
   pushfl
-  push $0x23
+  push $__USER_CS
   push 4(%ebp)
-  pushl %gs; pushl %fs; pushl %es; pushl %ds; pushl %eax; pushl %ebp; pushl %edi; pushl %esi; pushl %edx; pushl %ecx; pushl %ebx; movl $0x18, %edx; movl %edx, %ds; movl %edx, %es
-  cmpl $0, %EAX
-  jl errsys
-  cmpl $MAX_SYSCALL, %EAX
-  jg errsys
+  SAVE_ALL                          // Save the current context
+  cmpl $0, %EAX                       // Is syscall number negative?
+  jl errsys                             //If it is, jump to return an error
+  cmpl $MAX_SYSCALL, %EAX             // Is syscall greater than MAX_SYSCALL (4)?
+  jg errsys       
   push %eax
   call update_us
   pop %eax
-
-  call *sys_call_table(, %EAX, 0x04)
+                     //If it is, jump to return an error
+  call *sys_call_table(, %EAX, 0x04)  //Call the corresponding service routine
   push %eax
   call update_su
   pop %eax
-  jmp finsys
+  jmp finsys            
  errsys:
-  movl $-38, %EAX
+  movl $-ENOSYS, %EAX                 // Move to EAX the ENOSYS error
  finsys:
-  movl %EAX, 0x18(%esp)
-
-  popl %ebx; popl %ecx; popl %edx; popl %esi; popl %edi; popl %ebp; popl %eax; popl %ds; popl %es; popl %fs; popl %gs;
-  movl (%esp), %edx
-  movl 12(%esp), %ecx
-  sti
+  movl %EAX, 0x18(%esp)               // Change theEAXvaluein the stack
+  
+  RESTORE_ALL
+  movl (%esp), %edx	// Return address
+  movl 12(%esp), %ecx // User stack address*/
+  sti         
   sysexit
 
 
-.globl task_switch; .type task_switch, @function; .align 0; task_switch:
+ENTRY(task_switch)
   push %ebp
   movl %esp,%ebp
   push %esi
@@ -97,28 +152,31 @@ fin:
   push %ebx
   push 8(%ebp)
   call inner_task_switch
-  add $4, %esp
+  add $4, %esp 
   pop %ebx
   pop %edi
-  pop %esi
+  pop %esi	
   movl %ebp, %esp
   pop %ebp
   ret
 
-.globl getEBP; .type getEBP, @function; .align 0; getEBP:
+ENTRY(getEBP)
  movl %ebp,%eax
  ret
 
 
-.globl setESP; .type setESP, @function; .align 0; setESP:
- push %ebp
- mov %esp, %ebp
+ENTRY (setESP)
+	push %ebp 
+	mov %esp, %ebp
+	
+	mov 12(%ebp), %eax
+	mov %esp, (%eax)
+	
+	mov 8(%ebp), %eax
+	mov (%eax), %esp
 
- mov 12(%ebp), %eax
- mov %esp, (%eax)
-
- mov 8(%ebp), %eax
- mov (%eax), %esp
-
- pop %ebp
+	pop %ebp
 ret
+ 
+
+

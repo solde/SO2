@@ -40,6 +40,7 @@ struct task_struct {
   int clone_pid;
   int brk;
   int sem_ver;
+  int read_count;
 };
 
 union task_union {

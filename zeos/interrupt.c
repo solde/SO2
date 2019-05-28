@@ -118,12 +118,21 @@ void printchar(){ //DONE
  unsigned char c=inb(0x60);
  int tmp = c & 0x80;
  int tmpm= c & 0x7f;
+ 
  if(tmp==0){
-	printk("works");
  	char fin=char_map[tmpm];
-  cb_write(&keyboard_buffer, fin);
+	cb_write(&keyboard_buffer, fin);
+	
+	if(!list_empty(&keyboardqueue)){
+	 struct list_head *e = list_first( &keyboardqueue );
+	 struct task_struct *ts = list_entry( e, struct task_struct, list );
+	 if(ts->read_count == cb_size(&keyboard_buffer) || cb_is_full(&keyboard_buffer)){
+		update_process_state_front(ts, &readyqueue);
+		update_process_state_rr(current(), &readyqueue);
+		sched_next_rr();
+	 }
+	}
  }
-
 }
 
 void clock_int(){

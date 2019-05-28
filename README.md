@@ -1,4 +1,4 @@
-T# Sistemes Operatius 2
+# Sistemes Operatius 2
 ![Baka](./baka.png)
 
 <audio controls="controls">
